@@ -1,4 +1,4 @@
-class Tic_Tac_Toe :
+class Game :
     def __init__(self, players, player_1) : 
         self.players = players
         self.plr_1 = player_1

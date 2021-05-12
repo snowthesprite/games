@@ -1,7 +1,7 @@
-#import sys
-#sys.path.append('players')
-#sys.path.append('games')
-from game_1 import *
+import sys
+sys.path.append('tic_tac_toe/players')
+sys.path.append('tic_tac_toe/games')
+from game_1 import Game
 from random_player import RandomPlayer
 
 results = {0: 0, 1: 0, 'Cats Game': 0}
@@ -11,7 +11,7 @@ tests = 1000
 for loop in range(tests) :
     players = [RandomPlayer(), RandomPlayer()]
 
-    game = Tic_Tac_Toe(players, loop % 2)
+    game = Game(players, loop % 2)
     game.run_to_completion()
     results[game.winner] += 1
 
