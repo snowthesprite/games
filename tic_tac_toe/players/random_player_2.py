@@ -1,3 +1,4 @@
+## Shared Implimentation
 from random import random
 import math
 
