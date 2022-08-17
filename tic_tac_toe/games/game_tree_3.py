@@ -1,13 +1,14 @@
+#reduced
 class Node :
     def __init__(self, parent, player, game_state) :
-        self.state = game_state
-        self.children = []
+        #self.state = game_state
+        self.children = children
         self.player = player
         self.parent = parent
         self.score = None
-        self.winner = self.check_for_winner()
+        self.winner = self.check_for_winner(game_state)
     
-    def check_for_winner(self) :
+    def check_for_winner(self, game_state) :
         board = self.state
         rows = board.copy()
         cols = [[board[i][j] for i in range(3)] for j in range(3)]
@@ -35,6 +36,7 @@ class TicTacToeTree :
         self.plr_marks = ['X', 'O']
         self.total_nodes = 1
         self.leaf_nodes = 0 
+        self.nodes = {}
         self.build_game_tree() 
         #self.check_scores()
 
@@ -60,6 +62,32 @@ class TicTacToeTree :
                 leaf_nodes.append(queue[0])
             queue.pop(0)
         #self.assign_values(leaf_nodes)
+    
+    def create_nodes(self) :
+        nodes = {}
+        prev_choices = ['000000000']
+        leaf_nodes = []
+        while prev_choices != [] :
+            choice = prev_choices[0]
+            prev_choices.remove(choice)
+            possible_choices = self.get_possible_moves(choice)
+            if [] in possible_choices :
+                leaf_nodes.append(choice)
+                continue
+            if choice.count('1') == choice.count('2') :
+                sym = 1
+            else :
+                sym = 2
+
+            update = [choice[:value] + str(sym) + choice[value+1:] for value in possible_choices]
+            #nodes[choice] = Node(update, sym, choice)
+            for move in update :
+                if move in nodes.keys() :
+                    nodes[move].parent.append(choice)
+                else :
+                    prev_choices.append(move)
+                    nodes[move] = Node(choice, (sym+1)%2, move)
+            #prev_choices.extend([move for move in update if move not in prev_choices])
 
     def assign_values(self, leaf_nodes) :
         unassigned = leaf_nodes

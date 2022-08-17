@@ -6,6 +6,8 @@ board = [[None for _ in range(3)] for __ in range(3)]
 
 tree = TicTacToeTree(board, 0)
 
+print('ran')
+
 print(tree.total_nodes)
 print(tree.leaf_nodes)
 
