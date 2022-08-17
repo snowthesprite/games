@@ -1,7 +1,6 @@
 #reduced
 class Node :
     def __init__(self, parent, player, game_state) :
-        #self.state = game_state
         self.children = []
         self.player = player
         self.parent = [parent]
@@ -18,36 +17,17 @@ class Node :
             if len(set(stuff)) == 1 and '0' not in set(stuff) :
                 return int(stuff[0])
         if '0' not in board :
-            return 'tie'
-        '''
-        board = game_state
-        rows = board.copy()
-        cols = [[board[i][j] for i in range(3)] for j in range(3)]
-        diags = [[board[i][i] for i in range(3)],
-                 [board[i][2-i] for i in range(3)]]
-
-        full_board = True
-        for row in rows + cols + diags :
-            if None in row:
-                full_board = False
-                continue
-
-            if row[0] == row[1] and row[1] == row[2] :
-                return (self.player + 1) % 2
-
-        if full_board :
             return 'Tie'
-        '''
 
 class TicTacToeTree :
     start = [[None for _ in range(3)] for __ in range(3)]
 
     def __init__(self, starting_player=0, starting_state=start) :
         self.root = Node(None, starting_player, starting_state)
-        #self.max_plr = max_plr
+        self.max_plr = 1
         self.plr_marks = ['X', 'O']
-        self.total_nodes = 1
-        self.leaf_nodes = 0 
+        #self.total_nodes = 1
+        self.leaf_nodes = [] 
         self.nodes = {starting_state: self.root}
         self.create_nodes(starting_state)
         #self.build_game_tree() 
@@ -89,16 +69,14 @@ class TicTacToeTree :
         return possible_moves
     
     def create_nodes(self, starting_state) :
-        #nodes = {}
         prev_choices = [starting_state]
-        leaf_nodes = []
+        #leaf_nodes = []
         while prev_choices != [] :
             choice = prev_choices[0]
             prev_choices.remove(choice)
             possible_choices = self.get_possible_moves(choice)
             if [] in possible_choices :
-                leaf_nodes.append(choice)
-                self.leaf_nodes += 1
+                self.leaf_nodes.append(choice)
                 continue
             if choice.count('1') == choice.count('2') :
                 sym = 1
@@ -111,21 +89,20 @@ class TicTacToeTree :
                 if move in self.nodes.keys() :
                     self.nodes[move].parent.append(choice)
                 else :
-                    self.total_nodes+= 1
                     prev_choices.append(move)
                     self.nodes[move] = Node(choice, (sym+1)%2, move)
             #prev_choices.extend([move for move in update if move not in prev_choices])
         #return nodes
 
-    def assign_values(self, leaf_nodes) :
-        unassigned = leaf_nodes
+    def assign_values(self) :
+        unassigned = self.leaf_nodes
         print(len(unassigned))
         index = 0
         total_removed = 0
         removed = 0
         i =0
         while index <= len(unassigned) :
-            node = unassigned[index]
+            node = self.nodes[unassigned[index]]
             if i % 10000 == 0 :
                 print('iteration:',i, 'index',index)
                 print('actually removed:',removed)
@@ -134,10 +111,10 @@ class TicTacToeTree :
                 print()
             index+=1
             i+=1
-            child_scores = [child.score for child in node.children]
-            if None in child_scores :
-                continue
-            elif child_scores == [] :
+            child_scores = [self.nodes[child].score for child in node.children]
+            #if None in child_scores :
+            #    continue
+            if child_scores == [] :
                 if node.winner == 'Tie' :
                     node.score = 0
                 elif node.winner == self.max_plr :
@@ -149,13 +126,14 @@ class TicTacToeTree :
             else :
                 node.score = min(child_scores)
 
-            unassigned.remove(node)
+            unassigned.remove(unassigned[index])
             index -= 1
             removed+=1
             total_removed +=1 
             if node.parent not in unassigned :
-                unassigned.append(node.parent)
+                #unassigned.append(node.parent)
                 removed-= 1
+            unassigned.extend([parent for parent in node.parent if parent not in unassigned])
             if index == len(unassigned) and len(unassigned) > 1 :
                 index = 0
 

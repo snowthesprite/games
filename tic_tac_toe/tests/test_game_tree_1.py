@@ -1,6 +1,6 @@
 import sys
 sys.path.append('tic_tac_toe/games')
-from game_tree_2 import TicTacToeTree
+from game_tree_1 import TicTacToeTree
 
 board = [[None for _ in range(3)] for __ in range(3)]
 
