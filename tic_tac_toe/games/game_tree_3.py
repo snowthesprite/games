@@ -2,14 +2,25 @@
 class Node :
     def __init__(self, parent, player, game_state) :
         #self.state = game_state
-        self.children = children
+        self.children = []
         self.player = player
-        self.parent = parent
+        self.parent = [parent]
         self.score = None
         self.winner = self.check_for_winner(game_state)
     
     def check_for_winner(self, game_state) :
-        board = self.state
+        board = game_state
+        thing = [board[index: index+3] for index in range(0,9,3)] #row
+        for index in range(3) :
+            thing.append(board[index] + board[index+3] + board[index+6]) #column
+        thing.extend([board[0] + board[4] + board[8], board[2] + board[4] + board[6]]) #diagonal
+        for stuff in thing :
+            if len(set(stuff)) == 1 and '0' not in set(stuff) :
+                return int(stuff[0])
+        if '0' not in board :
+            return 'tie'
+        '''
+        board = game_state
         rows = board.copy()
         cols = [[board[i][j] for i in range(3)] for j in range(3)]
         diags = [[board[i][i] for i in range(3)],
@@ -26,18 +37,20 @@ class Node :
 
         if full_board :
             return 'Tie'
+        '''
 
 class TicTacToeTree :
     start = [[None for _ in range(3)] for __ in range(3)]
 
-    def __init__(self, max_plr, starting_player=0, starting_state=start) :
+    def __init__(self, starting_player=0, starting_state=start) :
         self.root = Node(None, starting_player, starting_state)
-        self.max_plr = max_plr
+        #self.max_plr = max_plr
         self.plr_marks = ['X', 'O']
         self.total_nodes = 1
         self.leaf_nodes = 0 
-        self.nodes = {}
-        self.build_game_tree() 
+        self.nodes = {starting_state: self.root}
+        self.create_nodes(starting_state)
+        #self.build_game_tree() 
         #self.check_scores()
 
     def create_children(self, parent) :
@@ -62,10 +75,22 @@ class TicTacToeTree :
                 leaf_nodes.append(queue[0])
             queue.pop(0)
         #self.assign_values(leaf_nodes)
+
+    def get_possible_moves(self, game_state) :
+        possible_moves = []
+        #thing = self.check_for_winner(game_state)
+        if self.nodes[game_state].winner != None :
+            return [[]]
+        for index in range(len(game_state)) :
+            if game_state[index] == '0':
+                possible_moves.append(index)
+        if possible_moves == [] :
+            possible_moves.append([])
+        return possible_moves
     
-    def create_nodes(self) :
-        nodes = {}
-        prev_choices = ['000000000']
+    def create_nodes(self, starting_state) :
+        #nodes = {}
+        prev_choices = [starting_state]
         leaf_nodes = []
         while prev_choices != [] :
             choice = prev_choices[0]
@@ -73,6 +98,7 @@ class TicTacToeTree :
             possible_choices = self.get_possible_moves(choice)
             if [] in possible_choices :
                 leaf_nodes.append(choice)
+                self.leaf_nodes += 1
                 continue
             if choice.count('1') == choice.count('2') :
                 sym = 1
@@ -80,14 +106,16 @@ class TicTacToeTree :
                 sym = 2
 
             update = [choice[:value] + str(sym) + choice[value+1:] for value in possible_choices]
-            #nodes[choice] = Node(update, sym, choice)
+            self.nodes[choice].children = update
             for move in update :
-                if move in nodes.keys() :
-                    nodes[move].parent.append(choice)
+                if move in self.nodes.keys() :
+                    self.nodes[move].parent.append(choice)
                 else :
+                    self.total_nodes+= 1
                     prev_choices.append(move)
-                    nodes[move] = Node(choice, (sym+1)%2, move)
+                    self.nodes[move] = Node(choice, (sym+1)%2, move)
             #prev_choices.extend([move for move in update if move not in prev_choices])
+        #return nodes
 
     def assign_values(self, leaf_nodes) :
         unassigned = leaf_nodes
@@ -152,7 +180,7 @@ class TicTacToeTree :
    
     ## yeah I lifted these from the shared game file what of it 
 
-    def get_possible_moves(self, board) :
+    def get_possible_moves_1(self, board) :
         possible_moves = [(i,j) for i in range(3) for j in range(3) if board[i][j] == None]
         return possible_moves
         
