@@ -8,7 +8,7 @@ tree = TicTacToeTree(0,board)
 
 print('ran')
 
-#print(tree.total_nodes)
-#print(tree.leaf_nodes)
+#print(len(tree.nodes))
+#print(len(tree.leaf_nodes))
 
 tree.assign_values()

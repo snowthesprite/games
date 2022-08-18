@@ -90,7 +90,7 @@ class TicTacToeTree :
                     self.nodes[move].parent.append(choice)
                 else :
                     prev_choices.append(move)
-                    self.nodes[move] = Node(choice, (sym+1)%2, move)
+                    self.nodes[move] = Node(choice, (sym%2) +1, move)
             #prev_choices.extend([move for move in update if move not in prev_choices])
         #return nodes
 
@@ -112,8 +112,12 @@ class TicTacToeTree :
             index+=1
             i+=1
             child_scores = [self.nodes[child].score for child in node.children]
-            #if None in child_scores :
-            #    continue
+            #print(child_scores)
+            if None in child_scores :
+                print(unassigned[index])
+                print(child_scores)
+                print('Error')
+                continue
             if child_scores == [] :
                 if node.winner == 'Tie' :
                     node.score = 0
@@ -126,16 +130,56 @@ class TicTacToeTree :
             else :
                 node.score = min(child_scores)
 
-            unassigned.remove(unassigned[index])
             index -= 1
+            unassigned.pop(index)
             removed+=1
             total_removed +=1 
-            if node.parent not in unassigned :
-                #unassigned.append(node.parent)
-                removed-= 1
+            
+            #unassigned.extend([parent for parent in node.parent if self.nodes[parent].score == None])
             unassigned.extend([parent for parent in node.parent if parent not in unassigned])
             if index == len(unassigned) and len(unassigned) > 1 :
                 index = 0
+
+    def assign_values_(self) :
+        unassigned = self.leaf_nodes
+        print(len(unassigned))
+        index = 0
+        total_removed = 0
+        removed = 0
+        i = 0
+        while unassigned != [] :
+            node = self.nodes[unassigned[0]]
+            if i % 10000 == 0 :
+                print('iteration:',i, 'index',index)
+                print('actually removed:',removed)
+                print('removed:',total_removed)
+                print(len(unassigned))
+                print()
+            i+=1
+            child_scores = [self.nodes[child].score for child in node.children]
+            #print(child_scores)
+            if None in child_scores :
+                print(unassigned[index])
+                print(child_scores)
+                print('Error')
+                #return
+                continue
+            if child_scores == [] :
+                if node.winner == 'Tie' :
+                    node.score = 0
+                elif node.winner == self.max_plr :
+                    node.score = 1
+                else :
+                    node.score = -1
+            elif node.player == self.max_plr :
+                node.score = max(child_scores)
+            else :
+                node.score = min(child_scores)
+
+            unassigned.pop(0)
+
+            unassigned.extend([parent for parent in node.parent if self.nodes[parent].score == None])
+            #unassigned.extend([parent for parent in node.parent if parent not in unassigned])
 
     def check_scores(self) :
         self.root.score == 'root'
