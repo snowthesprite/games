@@ -102,7 +102,7 @@ class TicTacToeTree :
         total_removed = 0
         removed = 0
         i =0
-        while len(unassigned) > 1  :
+        while len(unassigned) >= 1  :
             if index == len(unassigned) and unassigned != [] :
                 index = 0
             node = self.nodes[unassigned[index]]
@@ -143,6 +143,8 @@ class TicTacToeTree :
             #parents = [parent for parent in node.parent if self.nodes[parent].score == None]
             #parents_2 = [self.nodes[parent] for parent in node.parent if self.nodes[parent].score == None]
             #unassigned.extend([parent for parent in node.parent if parent not in unassigned])
+        print(unassigned)
+        return
 
     def assign_values_(self) :
         unassigned = self.leaf_nodes
@@ -186,7 +188,7 @@ class TicTacToeTree :
             #unassigned.extend([parent for parent in node.parent if parent not in unassigned])
 
     def check_scores(self) :
-        self.nodes[self.root].score == 'root'
+        #self.nodes[self.root].score == 'root'
         queue = [self.root]
         while queue != [] :
             node = self.nodes[queue[0]]

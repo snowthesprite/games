@@ -12,4 +12,4 @@ print('ran')
 #print(len(tree.leaf_nodes))
 
 tree.assign_values()
-#tree.check_scores
+tree.check_scores()
