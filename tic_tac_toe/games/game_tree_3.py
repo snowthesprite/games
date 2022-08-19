@@ -20,42 +20,15 @@ class Node :
             return 'Tie'
 
 class TicTacToeTree :
-    start = [[None for _ in range(3)] for __ in range(3)]
+    start = '000000000'
 
     def __init__(self, starting_player=0, starting_state=start) :
         self.root = starting_state
         self.max_plr = 1
-        self.plr_marks = ['X', 'O']
-        #self.total_nodes = 1
         self.leaf_nodes = [] 
         self.nodes = {self.root: Node(None, starting_player, self.root)}
         self.nodes[self.root].score = 'root'
         self.create_nodes(starting_state)
-        #self.build_game_tree() 
-        #self.check_scores()
-
-    def create_children(self, parent) :
-        if parent.winner != None :
-            self.leaf_nodes += 1
-            return
-        next_plr = (parent.player + 1) % 2
-        for (row_id, col_id) in self.get_possible_moves(parent.state) :
-            game_state = [row.copy() for row in parent.state]
-            game_state[row_id][col_id] = self.plr_marks[parent.player]
-            child = Node(parent, next_plr, game_state)
-            parent.children.append(child)
-            self.total_nodes += 1
-
-    def build_game_tree(self) :
-        leaf_nodes = []
-        queue = [self.root]
-        while queue != [] :
-            self.create_children(queue[0])
-            queue.extend(queue[0].children)
-            if queue[0].children == [] :
-                leaf_nodes.append(queue[0])
-            queue.pop(0)
-        #self.assign_values(leaf_nodes)
 
     def get_possible_moves(self, game_state) :
         possible_moves = []
@@ -97,31 +70,18 @@ class TicTacToeTree :
 
     def assign_values(self) :
         unassigned = self.leaf_nodes
-        print(len(unassigned))
         index = 0
-        total_removed = 0
-        removed = 0
-        i =0
+
         while len(unassigned) >= 1  :
             if index == len(unassigned) and unassigned != [] :
                 index = 0
+
             node = self.nodes[unassigned[index]]
             unassigned.extend([parent for parent in node.parent if self.nodes[parent].score == None and parent not in unassigned])
-            if i % 10000 == 0 :
-                print('iteration:',i, 'index',index)
-                print('actually removed:',removed)
-                print('removed:',total_removed)
-                print(len(unassigned))
-                print()
-            
-            i+=1
+
             child_scores = [self.nodes[child].score for child in node.children]
-            #print(child_scores)
             if None in child_scores :
-                index+=1
-                print(unassigned[index-1])
-                print(child_scores)
-                print('Error')
+                index += 1
                 continue
             if child_scores == [] :
                 if node.winner == 'Tie' :
@@ -134,61 +94,9 @@ class TicTacToeTree :
                 node.score = max(child_scores)
             else :
                 node.score = min(child_scores)
-
-            #index -= 1
             unassigned.pop(index)
-            removed+=1
-            total_removed +=1 
-            
-            #parents = [parent for parent in node.parent if self.nodes[parent].score == None]
-            #parents_2 = [self.nodes[parent] for parent in node.parent if self.nodes[parent].score == None]
-            #unassigned.extend([parent for parent in node.parent if parent not in unassigned])
-        print(unassigned)
-        return
-
-    def assign_values_(self) :
-        unassigned = self.leaf_nodes
-        print(len(unassigned))
-        index = 0
-        total_removed = 0
-        removed = 0
-        i = 0
-        while unassigned != [] :
-            node = self.nodes[unassigned[0]]
-            if i % 10000 == 0 :
-                print('iteration:',i, 'index',index)
-                print('actually removed:',removed)
-                print('removed:',total_removed)
-                print(len(unassigned))
-                print()
-            i+=1
-            child_scores = [self.nodes[child].score for child in node.children]
-            #print(child_scores)
-            if None in child_scores :
-                print(unassigned[index])
-                print(child_scores)
-                print('Error')
-                #return
-                continue
-            if child_scores == [] :
-                if node.winner == 'Tie' :
-                    node.score = 0
-                elif node.winner == self.max_plr :
-                    node.score = 1
-                else :
-                    node.score = -1
-            elif node.player == self.max_plr :
-                node.score = max(child_scores)
-            else :
-                node.score = min(child_scores)
-
-            unassigned.pop(0)
-
-            unassigned.extend([parent for parent in node.parent if self.nodes[parent].score == None])
-            #unassigned.extend([parent for parent in node.parent if parent not in unassigned])
 
     def check_scores(self) :
-        #self.nodes[self.root].score == 'root'
         queue = [self.root]
         while queue != [] :
             node = self.nodes[queue[0]]
@@ -208,8 +116,4 @@ class TicTacToeTree :
             queue.pop(0)
    
     ## yeah I lifted these from the shared game file what of it 
-
-    def get_possible_moves_1(self, board) :
-        possible_moves = [(i,j) for i in range(3) for j in range(3) if board[i][j] == None]
-        return possible_moves
         
