@@ -14,7 +14,7 @@ class TreePlayer :
   
     def set_player_number(self, n) :
         self.number = n
-        self.tree = TicTacToeTree(max_plr = )
+        self.tree = TicTacToeTree(max_plr = n)
 
     def choose_move(self, choices) :
         pass

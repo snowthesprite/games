@@ -23,12 +23,13 @@ class TicTacToeTree :
     start = [[None for _ in range(3)] for __ in range(3)]
 
     def __init__(self, starting_player=0, starting_state=start) :
-        self.root = Node(None, starting_player, starting_state)
+        self.root = starting_state
         self.max_plr = 1
         self.plr_marks = ['X', 'O']
         #self.total_nodes = 1
         self.leaf_nodes = [] 
-        self.nodes = {starting_state: self.root}
+        self.nodes = {self.root: Node(None, starting_player, self.root)}
+        self.nodes[self.root].score = 'root'
         self.create_nodes(starting_state)
         #self.build_game_tree() 
         #self.check_scores()
@@ -101,20 +102,24 @@ class TicTacToeTree :
         total_removed = 0
         removed = 0
         i =0
-        while index <= len(unassigned) :
+        while len(unassigned) > 1  :
+            if index == len(unassigned) and unassigned != [] :
+                index = 0
             node = self.nodes[unassigned[index]]
+            unassigned.extend([parent for parent in node.parent if self.nodes[parent].score == None and parent not in unassigned])
             if i % 10000 == 0 :
                 print('iteration:',i, 'index',index)
                 print('actually removed:',removed)
                 print('removed:',total_removed)
                 print(len(unassigned))
                 print()
-            index+=1
+            
             i+=1
             child_scores = [self.nodes[child].score for child in node.children]
             #print(child_scores)
             if None in child_scores :
-                print(unassigned[index])
+                index+=1
+                print(unassigned[index-1])
                 print(child_scores)
                 print('Error')
                 continue
@@ -130,15 +135,14 @@ class TicTacToeTree :
             else :
                 node.score = min(child_scores)
 
-            index -= 1
+            #index -= 1
             unassigned.pop(index)
             removed+=1
             total_removed +=1 
             
-            #unassigned.extend([parent for parent in node.parent if self.nodes[parent].score == None])
-            unassigned.extend([parent for parent in node.parent if parent not in unassigned])
-            if index == len(unassigned) and len(unassigned) > 1 :
-                index = 0
+            #parents = [parent for parent in node.parent if self.nodes[parent].score == None]
+            #parents_2 = [self.nodes[parent] for parent in node.parent if self.nodes[parent].score == None]
+            #unassigned.extend([parent for parent in node.parent if parent not in unassigned])
 
     def assign_values_(self) :
         unassigned = self.leaf_nodes
@@ -182,22 +186,23 @@ class TicTacToeTree :
             #unassigned.extend([parent for parent in node.parent if parent not in unassigned])
 
     def check_scores(self) :
-        self.root.score == 'root'
+        self.nodes[self.root].score == 'root'
         queue = [self.root]
         while queue != [] :
-            if queue[0].score == None :
+            node = self.nodes[queue[0]]
+            if node.score == None :
                 print('This node has no score')
-                print(queue[0].state)
+                print(node.state)
                 print('This nodes children are')
-                for node in queue[0].children :
+                for node in node.children :
                     print(node.state)
                     print(node.score)
                     print()
-                print('this nodes parent is')
-                print(queue[0].parent.state)
-                print(queue[0].parent.score)
+                print('this nodes parents are')
+                print(node.parent)
+                print([self.nodes[parent].score for parent in node.parent])
                 print('\n\n\n')
-            queue.extend(queue[0].children)
+            queue.extend(node.children)
             queue.pop(0)
    
     ## yeah I lifted these from the shared game file what of it 
