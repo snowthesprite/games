@@ -22,29 +22,24 @@ class Node :
 class TicTacToeTree :
     start = '000000000'
 
-    def __init__(self, starting_player=0, starting_state=start) :
+    def __init__(self, max_plr, starting_player=0, starting_state=start) :
         self.root = starting_state
-        self.max_plr = 1
+        self.max_plr = max_plr
         self.leaf_nodes = [] 
         self.nodes = {self.root: Node(None, starting_player, self.root)}
         self.nodes[self.root].score = 'root'
         self.create_nodes(starting_state)
 
     def get_possible_moves(self, game_state) :
-        possible_moves = []
-        #thing = self.check_for_winner(game_state)
         if self.nodes[game_state].winner != None :
             return [[]]
-        for index in range(len(game_state)) :
-            if game_state[index] == '0':
-                possible_moves.append(index)
+        possible_moves = [index for index in range(len(game_state)) if game_state[index]=='0']
         if possible_moves == [] :
             possible_moves.append([])
         return possible_moves
     
     def create_nodes(self, starting_state) :
         prev_choices = [starting_state]
-        #leaf_nodes = []
         while prev_choices != [] :
             choice = prev_choices[0]
             prev_choices.remove(choice)
@@ -83,6 +78,7 @@ class TicTacToeTree :
             if None in child_scores :
                 index += 1
                 continue
+            
             if child_scores == [] :
                 if node.winner == 'Tie' :
                     node.score = 0
