@@ -1,14 +1,15 @@
 #reduced
 class Node :
     def __init__(self, parent, player, game_state) :
+        #print(game_state)
+        #print(player)
         self.children = []
         self.player = player
         self.parent = [parent]
         self.score = None
         self.winner = self.check_for_winner(game_state)
     
-    def check_for_winner(self, game_state) :
-        board = game_state
+    def check_for_winner(self, board) :
         thing = [board[index: index+3] for index in range(0,9,3)] #row
         for index in range(3) :
             thing.append(board[index] + board[index+3] + board[index+6]) #column
@@ -22,13 +23,18 @@ class Node :
 class TicTacToeTree :
     start = '000000000'
 
-    def __init__(self, max_plr, starting_player=0, starting_state=start) :
-        self.root = starting_state
+    def __init__(self, max_plr, start_board=start) :
+        if start_board.count('1') == start_board.count('2') :
+            sym = 1
+        else :
+            sym = 2
+        self.root = start_board
+        #print(self.root)
         self.max_plr = max_plr
         self.leaf_nodes = [] 
-        self.nodes = {self.root: Node(None, starting_player, self.root)}
+        self.nodes = {self.root: Node(None, sym, self.root)}
         self.nodes[self.root].score = 'root'
-        self.create_nodes(starting_state)
+        self.create_nodes(start_board)
 
     def get_possible_moves(self, game_state) :
         if self.nodes[game_state].winner != None :
@@ -38,8 +44,8 @@ class TicTacToeTree :
             possible_moves.append([])
         return possible_moves
     
-    def create_nodes(self, starting_state) :
-        prev_choices = [starting_state]
+    def create_nodes(self, start_board) :
+        prev_choices = [start_board]
         while prev_choices != [] :
             choice = prev_choices[0]
             prev_choices.remove(choice)
@@ -98,12 +104,11 @@ class TicTacToeTree :
             node = self.nodes[queue[0]]
             if node.score == None :
                 print('This node has no score')
-                print(node.state)
+                print(queue[0])
                 print('This nodes children are')
-                for node in node.children :
-                    print(node.state)
-                    print(node.score)
-                    print()
+                print(node.children)
+                print([self.nodes[child].score for child in node.children])
+                print()
                 print('this nodes parents are')
                 print(node.parent)
                 print([self.nodes[parent].score for parent in node.parent])

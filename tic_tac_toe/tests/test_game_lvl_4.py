@@ -1,25 +1,27 @@
 import sys
 sys.path.append('tic_tac_toe/players')
 sys.path.append('tic_tac_toe/games')
-#from game_4 import TicTacToe
-#from random_player import RandomPlayer
+from game_4 import TicTacToe
+from random_player_3 import RandomPlayer
+from tree_player import TreePlayer
 
-results = {0: 0, 1: 0, 'Cats Game': 0}
+results = {1: 0, 2: 0, 'Tie': 0}
 
-tests = 1000
-players = [1,2]
+tests = 10
 
-print(players[::1])
-'''
+#'''
 for loop in range(tests) :
-    players = [RandomPlayer(), RandomPlayer()]
+    print(loop)
+    players = [RandomPlayer(), TreePlayer()]
+    #if loop % 2 == 1 :
+        #players = players[::-1]
 
-    game = Game(players, loop % 2)
+    game = TicTacToe(players)
     game.run_to_completion()
     results[game.winner] += 1
 
 print(results)
-print('Percentage Won by Plr 0:', results[0]/tests)
-print('Percentage Won by Plr 1:', results[1]/tests)
-print('Percentage of Cats Games:', results['Cats Game']/tests)
-'''
+print('Percentage Won by Plr 0:', results[1]/tests)
+print('Percentage Won by Plr 1:', results[2]/tests)
+print('Percentage of Cats Games:', results['Tie']/tests)
+#'''

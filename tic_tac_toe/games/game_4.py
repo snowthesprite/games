@@ -5,15 +5,15 @@ from random import random
 class TicTacToe:
     def __init__(self, players):
         self.players = players
+        self.board = '000000000'
         self.set_player_numbers()
         #self.determine_player_order()
-        self.board = '000000000'
         self.round = 1
         self.winner = None
 
     def set_player_numbers(self): 
-        self.players[0].set_player_number(1)
-        self.players[1].set_player_number(2)
+        self.players[0].set_player_info(1, self.board)
+        self.players[1].set_player_info(2, self.board)
     
     def determine_player_order(self):
         rand = round(random())
@@ -34,8 +34,8 @@ class TicTacToe:
         for player in self.players:
             choices = self.get_possible_moves()
             if choices != []:
-                player_move = player.choose_move(choices)
-                self.board[player_move[0]][player_move[1]] = player.symbol
+                player_move = player.choose_move(self.board, choices)
+                self.update_board(player, player_move)
             if self.check_for_winner() != None:
                 self.winner = self.check_for_winner()
                 break
@@ -45,6 +45,7 @@ class TicTacToe:
         while self.winner == None:
             self.complete_round()
 
+    '''
     def check_for_winner(self):
         rows = self.board.copy()
         cols = [[self.board[i][j] for i in range(3)] for j in range(3)]
@@ -63,6 +64,18 @@ class TicTacToe:
         if board_full:
             return 'Tie'
         return None
+    '''
+
+    def check_for_winner(self) :
+        thing = [self.board[index: index+3] for index in range(0,9,3)] #row
+        for index in range(3) :
+            thing.append(self.board[index] + self.board[index+3] + self.board[index+6]) #column
+        thing.extend([self.board[0] + self.board[4] + self.board[8], self.board[2] + self.board[4] + self.board[6]]) #diagonal
+        for stuff in thing :
+            if len(set(stuff)) == 1 and '0' not in set(stuff) :
+                return int(stuff[0])
+        if '0' not in self.board :
+            return 'Tie'
 
     def print_board(self):
         for i in range(len(self.board)):
@@ -75,3 +88,6 @@ class TicTacToe:
                     row_string += space + '|'
             print(row_string[:-1])
         print('\n')
+    
+    def update_board(self, player, choice) : 
+        self.board = self.board[:choice] + str(player.num) + self.board[choice+1:]
