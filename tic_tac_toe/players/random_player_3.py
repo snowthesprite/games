@@ -2,7 +2,7 @@
 from random import random
 from random import seed
 import math
-seed(1)
+#seed(1)
 
 class RandomPlayer:
   def __init__(self):

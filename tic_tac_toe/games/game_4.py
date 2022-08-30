@@ -78,15 +78,15 @@ class TicTacToe:
             return 'Tie'
 
     def print_board(self):
+        row_string = ''
         for i in range(len(self.board)):
-            row = self.board[i]
-            row_string = ''
-            for space in row:
-                if space == None:
-                    row_string += '_|'
-                else:
-                    row_string += space + '|'
-            print(row_string[:-1])
+            if i % 3 == 0 :
+                print(row_string[:-1])
+            if space == 0:
+                row_string += '_|'
+            else:
+                row_string += space + '|'
+            
         print('\n')
     
     def update_board(self, player, choice) : 

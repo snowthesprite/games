@@ -2,8 +2,9 @@ import sys
 sys.path.append('tic_tac_toe/players')
 sys.path.append('tic_tac_toe/games')
 from game_4 import TicTacToe
-from random_player_3 import RandomPlayer
+#from random_player_3 import RandomPlayer
 from tree_player import TreePlayer
+from input_player import InputPlayer
 
 results = {1: 0, 2: 0, 'Tie': 0}
 
@@ -12,7 +13,7 @@ tests = 10
 #'''
 for loop in range(tests) :
     print(loop)
-    players = [RandomPlayer(), TreePlayer()]
+    players = [InputPlayer(), TreePlayer()]
     #if loop % 2 == 1 :
         #players = players[::-1]
 
