@@ -14,8 +14,8 @@ tests = 10
 for loop in range(tests) :
     print(loop)
     players = [InputPlayer(), TreePlayer()]
-    #if loop % 2 == 1 :
-        #players = players[::-1]
+    if loop % 2 == 1 :
+        players = players[::-1]
 
     game = TicTacToe(players)
     game.run_to_completion()

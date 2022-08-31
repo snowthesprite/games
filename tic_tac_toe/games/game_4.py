@@ -4,10 +4,11 @@ from random import random
 
 class TicTacToe:
     def __init__(self, players):
+        self.rand = round(random())
         self.players = players
         self.board = '000000000'
+        self.determine_player_order()
         self.set_player_numbers()
-        #self.determine_player_order()
         self.round = 1
         self.winner = None
 
@@ -16,8 +17,7 @@ class TicTacToe:
         self.players[1].set_player_info(2, self.board)
     
     def determine_player_order(self):
-        rand = round(random())
-        if rand == 1:
+        if self.rand == 1:
             self.players = self.players[::-1]
     '''
     def get_possible_moves(self):
@@ -44,6 +44,8 @@ class TicTacToe:
     def run_to_completion(self):
         while self.winner == None:
             self.complete_round()
+        if self.rand == 1 :
+            self.winner = (self.winner % 2) + 1
 
     '''
     def check_for_winner(self):
