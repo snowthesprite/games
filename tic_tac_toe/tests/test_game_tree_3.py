@@ -9,8 +9,8 @@ tree = TicTacToeTree(max_plr = 2, start_board=board)
 
 print('ran')
 
-#print(len(tree.nodes))
-#print(len(tree.leaf_nodes))
+#print(len(tree.nodes)) ##5478
+#print(len(tree.leaf_nodes)) ##958
 
 tree.assign_values()
 print(tree.nodes['200000010'].score)

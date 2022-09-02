@@ -1,4 +1,7 @@
-#reduced
+## Heuristic Tree
+## You have to tell the tree to assign values
+## make better prune tree later
+
 class Node :
     def __init__(self, parent, player, game_state) :
         #print(game_state)
@@ -23,18 +26,22 @@ class Node :
 class TicTacToeTree :
     start = '000000000'
 
-    def __init__(self, max_plr, start_board=start) :
-        if start_board.count('1') == start_board.count('2') :
-            sym = 1
-        else :
-            sym = 2
+    def __init__(self, max_plr, num_layers, heuristic_funct, start_board=start) :
         self.root = start_board
+        self.layer_num = num_layers
+        self.h_funct = heuristic_funct
         #print(self.root)
         self.max_plr = max_plr
         self.leaf_nodes = [] 
-        self.nodes = {self.root: Node(None, sym, self.root)}
+        self.nodes = {self.root: Node(None, self.find_turn(start_board), self.root)}
         self.nodes[self.root].score = 'root'
         self.create_nodes(start_board)
+    
+    def find_turn(self, board) : 
+        if board.count('1') == board.count('2') :
+            return 1
+        else :
+            return 2
 
     def get_possible_moves(self, game_state) :
         if self.nodes[game_state].winner != None :
@@ -46,31 +53,38 @@ class TicTacToeTree :
     
     def create_nodes(self, start_board) :
         prev_choices = [start_board]
-        while prev_choices != [] :
+        curr_plr = self.find_turn(start_board)
+        layer = 0
+        while layer < self.layer_num and prev_choices != [] :
             choice = prev_choices[0]
+            if self.find_turn(choice) != curr_plr :
+                layer += 1
+                curr_plr = self.find_turn(choice)
+            if layer == self.layer_num :
+                break
             prev_choices.remove(choice)
             possible_choices = self.get_possible_moves(choice)
             if [] in possible_choices :
                 self.leaf_nodes.append(choice)
                 continue
-            if choice.count('1') == choice.count('2') :
-                sym = 1
-            else :
-                sym = 2
 
-            update = [choice[:value] + str(sym) + choice[value+1:] for value in possible_choices]
+            update = [choice[:value] + str(curr_plr) + choice[value+1:] for value in possible_choices]
             self.nodes[choice].children = update
             for move in update :
                 if move in self.nodes.keys() :
                     self.nodes[move].parent.append(choice)
                 else :
                     prev_choices.append(move)
-                    self.nodes[move] = Node(choice, (sym%2) +1, move)
+                    self.nodes[move] = Node(choice, (curr_plr%2) +1, move)
+            
+        self.leaf_nodes.extend(prev_choices)
+        if len(set(self.leaf_nodes)) != len(self.leaf_nodes) :
+            print("ERROR")
             #prev_choices.extend([move for move in update if move not in prev_choices])
         #return nodes
 
     def assign_values(self) :
-        unassigned = self.leaf_nodes
+        unassigned = self.leaf_nodes.copy()
         index = 0
 
         while len(unassigned) >= 1  :
@@ -86,17 +100,38 @@ class TicTacToeTree :
                 continue
             
             if child_scores == [] :
-                if node.winner == 'Tie' :
-                    node.score = 0
-                elif node.winner == self.max_plr :
-                    node.score = 1
-                else :
-                    node.score = -1
+                self.find_score(unassigned[index], node)
             elif node.player == self.max_plr :
                 node.score = max(child_scores)
             else :
                 node.score = min(child_scores)
             unassigned.pop(index)
+    
+    def find_score(self, board, node) :
+        if node.winner != None :
+            if node.winner == 'Tie' :
+                node.score = 0
+            elif node.winner == self.max_plr :
+                node.score = 1
+            else :
+                node.score = -1
+            return
+
+        win_process = [board[index: index+3] for index in range(0,9,3)] #row
+        for index in range(3) :
+            win_process.append(board[index] + board[index+3] + board[index+6]) #column
+        win_process.extend([board[0] + board[4] + board[8], board[2] + board[4] + board[6]]) #diagonal
+
+        good_set = 0
+        bad_set = 0
+        for thing in win_process :
+            good_num = thing.count(str(self.max_plr))
+            bad_num = thing.count(str((self.max_plr%2)+1))
+            if good_num == 2 and bad_num == 0 :
+                good_set+= 1
+            if bad_num == 2 and good_num == 0 :
+                bad_set+=1
+        node.score = (good_set-bad_set)/8
 
     def check_scores(self) :
         queue = [self.root]
@@ -115,6 +150,10 @@ class TicTacToeTree :
                 print('\n\n\n')
             queue.extend(node.children)
             queue.pop(0)
-   
-    ## yeah I lifted these from the shared game file what of it 
-        
+
+    def prune_tree(self, new_board) :
+        self.leaf_nodes = [] 
+        self.root = new_board
+        self.nodes = {self.root: Node(None, self.find_turn(new_board), self.root)}
+        self.nodes[self.root].score = 'root'
+        self.create_nodes(new_board)
