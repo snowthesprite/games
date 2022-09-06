@@ -44,7 +44,8 @@ class TicTacToe:
     def run_to_completion(self):
         while self.winner == None:
             self.complete_round()
-        if self.rand == 1 :
+        if self.rand == 1 and type(self.winner) == int:
+            #print(type(self.winner))
             self.winner = (self.winner % 2) + 1
 
     '''
