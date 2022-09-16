@@ -9,9 +9,9 @@ from tree_player import TreePlayer
 
 results = {1: 0, 2: 0, 'Tie': 0}
 
-tests = 10
+tests = 100
 
-#'''
+'''
 for loop in range(tests) :
     #print(loop)
     players = [TreePlayer(), TreePlayerHeuristic(9)]
@@ -33,7 +33,7 @@ results = {1: 0, 2: 0, 'Tie': 0}
 print('\n\n')
 for loop in range(tests) :
     #print(loop)
-    players = [TreePlayerHeuristic(5), TreePlayerHeuristic(9)]
+    players = [TreePlayerHeuristic(2), TreePlayerHeuristic(9)]
     #if loop % 2 == 1 :
     #    players = players[::-1]
 
@@ -42,12 +42,12 @@ for loop in range(tests) :
     results[game.winner] += 1
 
 print(results)
-print('Percentage Won by Heuristic (5) Plr:', results[1]/tests)
+print('Percentage Won by Heuristic (2) Plr:', results[1]/tests)
 print('Percentage Won by Heuristic (9) Plr:', results[2]/tests)
 print('Percentage of Cats Games:', results['Tie']/tests)
 #'''
 
-#'''
+'''
 results = {1: 0, 2: 0, 'Tie': 0}
 print('\n\n')
 for loop in range(tests) :

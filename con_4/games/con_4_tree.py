@@ -4,8 +4,6 @@
 
 class Node :
     def __init__(self, parent, player, game_state) :
-        #print(game_state)
-        #print(player)
         self.children = []
         self.player = player
         self.parent = [parent]
@@ -13,18 +11,52 @@ class Node :
         self.winner = self.check_for_winner(game_state)
     
     def check_for_winner(self, board) :
-        thing = [board[index: index+3] for index in range(0,9,3)] #row
-        for index in range(3) :
-            thing.append(board[index] + board[index+3] + board[index+6]) #column
-        thing.extend([board[0] + board[4] + board[8], board[2] + board[4] + board[6]]) #diagonal
+        rows = [board[row] for row in range(6)] #row
+        cols = [''.join([board[row][col] for row in range(6)]) for col in range(7)]
+        l_dias = []
+        r_dias = []
+        diagonals = [(3,0),(4,0),(5,0),(5,1),(5,2),(5,3)]
+        for (row, col) in diagonals :
+            i=0
+            l_dia = []
+            r_dia = []
+            while row-i >=0 and col+i <= 6 :
+                ##l_dias.append(''.join([board[row-i][col+i] for i in range(row-col+1)]))
+                ##r_dias.append(''.join([board[row-i][6-col-i] for i in range(row-col+1)]))
+                l_dia.append(board[row-i][col+i])
+                r_dia.append(board[row-i][6-col-i])
+                i+= 1
+            l_dias.append(l_dia)
+            r_dias.append(r_dia)
+        
+        thing = rows + cols + l_dias + r_dias
+
+        tie = []
+
         for stuff in thing :
-            if len(set(stuff)) == 1 and '0' not in set(stuff) :
-                return int(stuff[0])
-        if '0' not in board :
+            if stuff.count('0') > len(stuff) - 4 :
+                continue
+            if '1111' in stuff :
+                return 1
+            elif '2222' in stuff :
+                return 2
+            tie.append('0' in stuff)
+
+        if True not in tie:
             return 'Tie'
 
-class TicTacToeTree :
-    start = '000000000'
+class Con4Tree :
+    start = ['0000000' for _ in range(6)]
+    #7 col, 6 rows
+    #'0000000'
+    #'0000000'
+    #'0000000'
+    #'0000000'
+    #'0000000'
+    #'0000000'
+    #ways to connect 4
+    #Check each row/column for 4+ players 
+    #make diagonals by going till hit 0 or 6
 
     def __init__(self, max_plr, num_layers, heuristic_funct) :
         self.root = None#start_board
@@ -46,10 +78,11 @@ class TicTacToeTree :
     def get_possible_moves(self, game_state) :
         if self.nodes[game_state].winner != None :
             return [[]]
-        possible_moves = [index for index in range(len(game_state)) if game_state[index]=='0']
-        if possible_moves == [] :
-            possible_moves.append([])
-        return possible_moves
+        
+        cols = [[(row,col) for row in range(6)] for col in range(7)]
+        for row in range(5,-1,-1) :
+            pass  
+            
     
     def create_nodes(self, start_board) :
         prev_choices = [start_board]

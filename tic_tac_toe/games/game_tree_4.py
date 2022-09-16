@@ -4,8 +4,6 @@
 
 class Node :
     def __init__(self, parent, player, game_state) :
-        #print(game_state)
-        #print(player)
         self.children = []
         self.player = player
         self.parent = [parent]
@@ -27,15 +25,12 @@ class TicTacToeTree :
     start = '000000000'
 
     def __init__(self, max_plr, num_layers, heuristic_funct) :
-        self.root = None#start_board
+        self.root = None
         self.layer_num = num_layers
         self.heuristic = heuristic_funct
-        #print(self.root)
         self.max_plr = max_plr
         self.leaf_nodes = [] 
-        self.nodes = None#{self.root: Node(None, self.find_turn(start_board), self.root)}
-        #self.nodes[self.root].score = 'root'
-        #self.create_nodes(start_board)
+        self.nodes = None
     
     def find_turn(self, board) : 
         if board.count('1') == board.count('2') :
@@ -80,8 +75,6 @@ class TicTacToeTree :
         self.leaf_nodes.extend(prev_choices)
         if len(set(self.leaf_nodes)) != len(self.leaf_nodes) :
             print("ERROR")
-            #prev_choices.extend([move for move in update if move not in prev_choices])
-        #return nodes
 
     def assign_values(self) :
         unassigned = self.leaf_nodes.copy()
