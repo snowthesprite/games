@@ -1,14 +1,24 @@
-board = [['00','01','02','03','04','05','06'],
-         ['10','11','12','13','14','15','16'],
-         ['20','21','22','23','24','25','26'],
-         ['30','31','32','33','34','35','36'],
-         ['40','41','42','43','44','45','46'],
-         ['50','51','52','53','54','55','56']]
+board = ['00','01','02','03','04','05','06',
+         '07','08','09','10','11','12','13',
+         '14','15','16','17','18','19','20',
+         '21','22','23','24','25','26','27',
+         '28','29','30','31','32','33','34',
+         '35','36','37','38','39','40','41']
 
-rows = [board[row] for row in range(6)] #row
-cols = [''.join([board[row][col] for row in range(6)]) for col in range(7)]
+rows = [board[index:index+7] for index in range(0,41,7)] #row
+#print(rows)
+cols = [[board[index + mult*7] for mult in range(6)] for index in range(7)]
+#print(cols)
+diagonals = [(21,3),(28,4),(35,5),(36,6),(37,13),(38,20)]
 l_dias = []
 r_dias = []
+for dia in diagonals :
+    l_dias.append([board[index] for index in range(dia[0],dia[1]-1,-6 )])
+    r_dias.append([board[index] for index in range(dia[0] + 6,dia[1]-1,-8 )])
+print(l_dias)
+print()
+print(r_dias)
+'''
 diagonals = [(3,0),(4,0),(5,0),(5,1),(5,2),(5,3)]
 for (row, col) in diagonals :
     i=0
@@ -34,3 +44,4 @@ print('0' in l[2])
 
 for row in range(5,-1,-1) : 
     print(row)
+#'''

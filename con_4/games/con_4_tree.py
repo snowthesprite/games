@@ -79,10 +79,15 @@ class Con4Tree :
         if self.nodes[game_state].winner != None :
             return [[]]
         
-        cols = [[(row,col) for row in range(6)] for col in range(7)]
-        for row in range(5,-1,-1) :
-            pass  
-            
+        possible_moves = []
+        
+        cols = [[(row,col) for row in range(5,-1,-1)] for col in range(7)]
+        for col in cols :
+            for (row, col) in col :
+                if board[row][col] == '0' :
+                    possible_moves.append((row,col))
+                    break
+        return possible_moves     
     
     def create_nodes(self, start_board) :
         prev_choices = [start_board]
