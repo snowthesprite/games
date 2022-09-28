@@ -21,8 +21,6 @@ class Node :
             l_dia = []
             r_dia = []
             while row-i >=0 and col+i <= 6 :
-                ##l_dias.append(''.join([board[row-i][col+i] for i in range(row-col+1)]))
-                ##r_dias.append(''.join([board[row-i][6-col-i] for i in range(row-col+1)]))
                 l_dia.append(board[row-i][col+i])
                 r_dia.append(board[row-i][6-col-i])
                 i+= 1
@@ -84,7 +82,7 @@ class Con4Tree :
         cols = [[(row,col) for row in range(5,-1,-1)] for col in range(7)]
         for col in cols :
             for (row, col) in col :
-                if board[row][col] == '0' :
+                if game_state[row][col] == '0' :
                     possible_moves.append((row,col))
                     break
         return possible_moves     
@@ -106,14 +104,19 @@ class Con4Tree :
                 self.leaf_nodes.append(choice)
                 continue
 
-            update = [choice[:value] + str(curr_plr) + choice[value+1:] for value in possible_choices]
-            self.nodes[choice].children = update
-            for move in update :
+            update = [choice[:value] + str(curr_plr) + choice[value+1:] for (row, col) in possible_choices]
+            inflate_choice = self.inflate_board(choice)
+            for (row, col) in possible_choices :
+                new = choice.copy()
+                new[row] = new[row][:col] + str(curr_plr) + new[row][col+1:]
+
+            for board in update :
+                move = self.flaten_board(board)
                 if move in self.nodes.keys() :
                     self.nodes[move].parent.append(choice)
                 else :
                     prev_choices.append(move)
-                    self.nodes[move] = Node(choice, (curr_plr%2) +1, move)
+                    self.nodes[move] = Node(choice, (curr_plr%2) +1, board)
             
         self.leaf_nodes.extend(prev_choices)
         if len(set(self.leaf_nodes)) != len(self.leaf_nodes) :
@@ -182,3 +185,9 @@ class Con4Tree :
         self.nodes[self.root].score = 'root'
         self.create_nodes(new_board)
         self.assign_values()
+
+    def flaten_board(self, board) :
+        return ''.join(board)
+
+    def inflate_board(self, board) :
+        return [board[index:index+7] for index in range(0,41,7)]
