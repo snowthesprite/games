@@ -13,6 +13,12 @@ class Node :
     def check_for_winner(self, board) :
         rows = [board[row] for row in range(6)] #row
         cols = [''.join([board[row][col] for row in range(6)]) for col in range(7)]
+        '''
+        print(board)
+        for col in range(7) :
+            for row in range(6) :
+                print(board[row][col], (row,col))
+        #'''
         l_dias = []
         r_dias = []
         diagonals = [(3,0),(4,0),(5,0),(5,1),(5,2),(5,3)]
@@ -32,13 +38,13 @@ class Node :
         tie = []
 
         for stuff in thing :
+            tie.append('0' in stuff)
             if stuff.count('0') > len(stuff) - 4 :
                 continue
             if '1111' in stuff :
                 return 1
             elif '2222' in stuff :
                 return 2
-            tie.append('0' in stuff)
 
         if True not in tie:
             return 'Tie'
@@ -74,15 +80,18 @@ class Con4Tree :
             return 2
 
     def get_possible_moves(self, game_state) :
+        #print(game_state)
         if self.nodes[game_state].winner != None :
             return [[]]
+
+        board = self.inflate_board(game_state)
         
         possible_moves = []
         
         cols = [[(row,col) for row in range(5,-1,-1)] for col in range(7)]
         for col in cols :
             for (row, col) in col :
-                if game_state[row][col] == '0' :
+                if board[row][col] == '0' :
                     possible_moves.append((row,col))
                     break
         return possible_moves     
@@ -104,11 +113,12 @@ class Con4Tree :
                 self.leaf_nodes.append(choice)
                 continue
 
-            update = [choice[:value] + str(curr_plr) + choice[value+1:] for (row, col) in possible_choices]
-            inflate_choice = self.inflate_board(choice)
+            #update = [choice[:value] + str(curr_plr) + choice[value+1:] for (row, col) in possible_choices]
+            update = []
             for (row, col) in possible_choices :
-                new = choice.copy()
+                new = self.inflate_board(choice)
                 new[row] = new[row][:col] + str(curr_plr) + new[row][col+1:]
+                update.append(new)
 
             for board in update :
                 move = self.flaten_board(board)
@@ -158,7 +168,7 @@ class Con4Tree :
                 node.score = -1
             return
         
-        node.score = self.heuristic(board)
+        node.score = self.heuristic(self.inflate_board(board))
 
     def check_scores(self) :
         queue = [self.root]
@@ -180,10 +190,10 @@ class Con4Tree :
 
     def prune_tree(self, new_board) :
         self.leaf_nodes = [] 
-        self.root = new_board
-        self.nodes = {self.root: Node(None, self.find_turn(new_board), self.root)}
+        self.root = self.flaten_board(new_board)
+        self.nodes = {self.root: Node(None, self.find_turn(self.root), new_board)}
         self.nodes[self.root].score = 'root'
-        self.create_nodes(new_board)
+        self.create_nodes(self.root)
         self.assign_values()
 
     def flaten_board(self, board) :

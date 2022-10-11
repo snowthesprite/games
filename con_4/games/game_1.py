@@ -13,8 +13,8 @@ class Con4 :
         self.winner = None
 
     def set_player_numbers(self): 
-        self.players[0].set_player_info(1, self.board)
-        self.players[1].set_player_info(2, self.board)
+        self.players[0].set_player_info(1)
+        self.players[1].set_player_info(2)
     
     def determine_player_order(self):
         if self.rand == 1:

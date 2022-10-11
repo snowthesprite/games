@@ -19,11 +19,7 @@ class TicTacToe:
     def determine_player_order(self):
         if self.rand == 1:
             self.players = self.players[::-1]
-    '''
-    def get_possible_moves(self):
-        possible_moves = [(i,j) for i in range(3) for j in range(3) if self.board[i][j] == None]
-        return possible_moves
-    '''
+
     def get_possible_moves(self) :
         possible_moves = [index for index in range(len(self.board)) if self.board[index]=='0']
         if possible_moves == [] :
@@ -45,29 +41,7 @@ class TicTacToe:
         while self.winner == None:
             self.complete_round()
         if self.rand == 1 and type(self.winner) == int:
-            #print(type(self.winner))
             self.winner = (self.winner % 2) + 1
-
-    '''
-    def check_for_winner(self):
-        rows = self.board.copy()
-        cols = [[self.board[i][j] for i in range(3)] for j in range(3)]
-        diags = [[self.board[i][i] for i in range(3)],
-                         [self.board[i][2-i] for i in range(3)]]
-
-        board_full = True
-        for row in rows + cols + diags:
-            if None in row:
-                board_full = False
-
-            for player in self.players:
-                if row == [player.symbol for _ in range(3)]:
-                    return player.number
-        
-        if board_full:
-            return 'Tie'
-        return None
-    '''
 
     def check_for_winner(self) :
         thing = [self.board[index: index+3] for index in range(0,9,3)] #row

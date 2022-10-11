@@ -25,7 +25,7 @@ print(l_dias)
 print()
 print(r_dias)
 '''
-#'''
+'''
 board = [['00','01','02','03','04','05','06'],
          ['10','11','12','13','14','15','16'],
          ['20','21','22','23','24','25','26'],
@@ -65,7 +65,7 @@ print(l)
 print(board)
 print(''.join(l))
 #'''
-
+'''
 board = ['00','01','02','03','04','05','06',
          '07','08','09','10','11','12','13',
          '14','15','16','17','18','19','20',
@@ -76,5 +76,65 @@ board = ['00','01','02','03','04','05','06',
 new = [board[index:index+7] for index in range(0,41,7)]
 print(new)
 
+#'''
+'''
+import sys
+sys.path.append('con_4/games')
+from con_4_tree import Con4Tree
+import time
+
+def print_board(board):
+    for row in board:
+        row_string = '|'
+        for col in row :
+            if col == '0' :
+                row_string += ' |'
+            else:
+                row_string += col + '|'
+        print(row_string)
+        print('---------------')
+
+def heuristic(board) :
+        rows = [board[row] for row in range(6)] #row
+        cols = [''.join([board[row][col] for row in range(6)]) for col in range(7)]
+        l_dias = []
+        r_dias = []
+        diagonals = [(3,0),(4,0),(5,0),(5,1),(5,2),(5,3)]
+        for (row, col) in diagonals :
+            i=0
+            l_dia = []
+            r_dia = []
+            while row-i >=0 and col+i <= 6 :
+                l_dia.append(board[row-i][col+i])
+                r_dia.append(board[row-i][6-col-i])
+                i+= 1
+            l_dias.append(l_dia)
+            r_dias.append(r_dia)
+        
+        win_process = rows + cols + l_dias + r_dias
+
+        good_set = 0
+        bad_set = 0
+        for thing in win_process :
+            good_num = thing.count(str(1))
+            bad_num = thing.count(str(2))
+            empty = thing.count('0')
+            if good_num >= 2 and empty >= 2 :
+                good_set+= 1
+            if bad_num >= 2 and empty >= 2 :
+                bad_set+=1
+        return (good_set-bad_set)/len(win_process)
+
 board = ''.join(['0' for _ in range(42)])
-print(len(board))
+
+tree = Con4Tree(1, 6, heuristic)
+t_1 = time.time()
+tree.prune_tree(board)
+t_2 = time.time()
+print(t_2-t_1)
+
+for node in tree.nodes :
+    thing = tree.inflate_board(node)
+    print('\n\n')
+    print_board(thing)
+#'''
