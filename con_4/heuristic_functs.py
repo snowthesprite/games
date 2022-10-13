@@ -1,12 +1,12 @@
-import sys
-sys.path.append('con_4/games')
-from con_4_tree import Con4Tree
+'''
+Generation 1
+initialization
+#2ply : 0.00579380989074707
+#3ply : 0.031876564025878906 
+#4ply : 0.16466116905212402
+#5ply : 1.1452903747558594
+#6ply : 9.395210981369019
 
-class TreePlayerHeuristic :
-    def __init__(self, layers) :
-        self.num = None
-        self.tree = None
-        self.layers = layers
 
     def heuristic(self, board) :
         rows = [board[row] for row in range(6)] #row
@@ -37,28 +37,7 @@ class TreePlayerHeuristic :
                 good_set+= 1
             if bad_num >= 2 and empty >= 2 :
                 bad_set+=1
+            
         return (good_set-bad_set)/len(win_process)
-  
-    def set_player_info(self, n) :
-        self.num = n
-        self.tree = Con4Tree(n, self.layers, self.heuristic)
 
-    def choose_move(self, board, choices) :
-        self.tree.prune_tree(board)
-        best = (None, -1)
-        #print(self.tree.nodes.keys())
-
-        for col in choices :
-            update = board.copy()
-            choice = self.find_row(board, col)
-            update[choice[0]] = board[choice[0]][:choice[1]] + str(self.num) + board[choice[0]][choice[1]+1:]
-            flatdate = self.tree.flaten_board(update)
-            if self.tree.nodes[flatdate].score >= best[1] :
-                best = (choice, self.tree.nodes[flatdate].score)
-        return best[0]
-
-    def find_row(self, board, col) :
-        for row in range(5,-1,-1) :
-            if board[row][col] == '0' :
-                return (row, col)
-
+'''

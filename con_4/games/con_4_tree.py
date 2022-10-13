@@ -69,7 +69,7 @@ class Con4Tree :
         #print(self.root)
         self.max_plr = max_plr
         self.leaf_nodes = [] 
-        self.nodes = None#{self.root: Node(None, self.find_turn(start_board), self.root)}
+        self.nodes = {}#{self.root: Node(None, self.find_turn(start_board), self.root)}
         #self.nodes[self.root].score = 'root'
         #self.create_nodes(start_board)
     
@@ -108,10 +108,16 @@ class Con4Tree :
             if layer == self.layer_num :
                 break
             prev_choices.remove(choice)
+
             possible_choices = self.get_possible_moves(choice)
             if [] in possible_choices :
                 self.leaf_nodes.append(choice)
                 continue
+
+            if choice in self.nodes :
+                prev_choices.extend(self.nodes[choice].children)
+                if self.nodes[choice].children != [] :
+                    continue
 
             #update = [choice[:value] + str(curr_plr) + choice[value+1:] for (row, col) in possible_choices]
             update = []
@@ -189,9 +195,11 @@ class Con4Tree :
             queue.pop(0)
 
     def prune_tree(self, new_board) :
-        self.leaf_nodes = [] 
+        self.leaf_nodes = []
+        #print(board)
         self.root = self.flaten_board(new_board)
-        self.nodes = {self.root: Node(None, self.find_turn(self.root), new_board)}
+        if self.root not in self.nodes.keys() :
+            self.nodes = {self.root: Node(None, self.find_turn(self.root), new_board)}
         self.nodes[self.root].score = 'root'
         self.create_nodes(self.root)
         self.assign_values()

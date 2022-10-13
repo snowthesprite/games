@@ -77,7 +77,7 @@ new = [board[index:index+7] for index in range(0,41,7)]
 print(new)
 
 #'''
-'''
+#'''
 import sys
 sys.path.append('con_4/games')
 from con_4_tree import Con4Tree
@@ -125,7 +125,7 @@ def heuristic(board) :
                 bad_set+=1
         return (good_set-bad_set)/len(win_process)
 
-board = ''.join(['0' for _ in range(42)])
+board = [''.join(['0' for _ in range(7)]) for __ in range(6)]
 
 tree = Con4Tree(1, 6, heuristic)
 t_1 = time.time()
@@ -133,6 +133,14 @@ tree.prune_tree(board)
 t_2 = time.time()
 print(t_2-t_1)
 
+board[5] = '1200000'
+
+t_1 = time.time()
+tree.prune_tree(board)
+t_2 = time.time()
+print(t_2-t_1)
+
+'''
 for node in tree.nodes :
     thing = tree.inflate_board(node)
     print('\n\n')
