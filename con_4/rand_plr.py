@@ -7,8 +7,14 @@ class Row3 :
     def set_player_info(self, n) :
         self.num = n
 
+    def find_row(self, board, col) :
+        for row in range(5,-1,-1) :
+            if board[row][col] == '0' :
+                return (row, col)
+
     def choose_move(self, board, choices) :
         good, bad = self.size(board)
+        choices_ = [self.find_row(board, col) for col in choices]
         good_m = [move for move in good if move in choices]
         bad_m = [move for move in bad if move in choices]
         if good_m != []:

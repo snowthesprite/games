@@ -19,21 +19,21 @@ class Con4 :
     def determine_player_order(self):
         if self.rand == 1:
             self.players = self.players[::-1]
-
-    def get_possible_moves(self) :
+    
+    def get_possible_moves_col(self) :
         possible_moves = []
         
         cols = [[(row,col) for row in range(5,-1,-1)] for col in range(7)]
-        for col in cols :
-            for (row, col) in col :
+        for colm in cols :
+            for (row, col) in colm :
                 if self.board[row][col] == '0' :
-                    possible_moves.append((row,col))
+                    possible_moves.append(col)
                     break
-        return possible_moves   
+        return possible_moves
 
     def complete_round(self):
         for player in self.players:
-            choices = self.get_possible_moves()
+            choices = self.get_possible_moves_col()
             if choices != []:
                 player_move = player.choose_move(self.board, choices)
                 self.update_board(player, player_move)
@@ -100,4 +100,9 @@ class Con4 :
         #print('\n')
     
     def update_board(self, player, choice) : 
+        #print(choice)
+        for row in range(5,-1,-1) :
+            if self.board[row][choice] == '0' :
+                choice = (row, choice)
+                break
         self.board[choice[0]] = self.board[choice[0]][:choice[1]] + str(player.num) + self.board[choice[0]][choice[1]+1:]

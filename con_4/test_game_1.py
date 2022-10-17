@@ -15,12 +15,12 @@ print(results)
 
 
 '''
-tests = 100
+tests = 10000
 results = {1: 0, 2: 0, 'Tie': 0}
 #print('\n\n')
 for loop in range(tests) :
     print(loop)
-    players = [TreePlayerHeuristic(4), Row3()]
+    players = [Row3(), Row3()]
     game = Con4(players)
     game.run_to_completion()
     results[game.winner]+= 1
