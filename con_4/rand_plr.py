@@ -13,6 +13,7 @@ class Row3 :
                 return (row, col)
 
     def choose_move(self, num_board, choices) :
+        #board = self.transpose(num_board)
         board = self.make_string(num_board)
         good, bad = self.size(board)
         choices_ = [self.find_row(board, col) for col in choices]
