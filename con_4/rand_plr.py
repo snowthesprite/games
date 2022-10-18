@@ -12,7 +12,8 @@ class Row3 :
             if board[row][col] == '0' :
                 return (row, col)
 
-    def choose_move(self, board, choices) :
+    def choose_move(self, num_board, choices) :
+        board = self.make_string(num_board)
         good, bad = self.size(board)
         choices_ = [self.find_row(board, col) for col in choices]
         good_m = [move for move in good if move in choices]
@@ -63,3 +64,6 @@ class Row3 :
                 elif lose in thing[way_i][index] :
                     bad.extend(thing_m[way_i][index])
         return good, bad
+
+    def make_string(self, board) :
+        return [''.join(row) for row in board]
