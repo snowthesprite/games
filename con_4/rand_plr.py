@@ -69,5 +69,11 @@ class Row3 :
     def make_string(self, board) :
         return [''.join([str(_) for _ in row]) for row in board]
     
+    def make_list(self) :
+        pass
+    
     def transpose(self, board) :
         return [[board[row][col] for row in range(len(board))] for col in range(len(board[0]))]
+
+    def transpose_str(self, board) :
+        return [''.join([board[row][col] for row in range(len(board))] for col in range(len(board[0])))]
