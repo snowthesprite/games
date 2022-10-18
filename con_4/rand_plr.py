@@ -4,7 +4,7 @@ class Row3 :
     def __init__(self) :
         self.num = None
   
-    def set_player_info(self, n) :
+    def set_player_number(self, n) :
         self.num = n
 
     def find_row(self, board, col) :
@@ -66,4 +66,7 @@ class Row3 :
         return good, bad
 
     def make_string(self, board) :
-        return [''.join(row) for row in board]
+        return [''.join([str(_) for _ in row]) for row in board]
+    
+    def transpose(self, board) :
+        return [[board[row][col] for row in range(len(board))] for col in range(len(board[0]))]
