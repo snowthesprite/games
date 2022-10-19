@@ -2,7 +2,7 @@ import sys
 sys.path.append('con_4/games')
 from game_1 import Con4
 from tree_plr import TreePlayerHeuristic
-from rand_plr import Row3
+from rand_plr import Row3z
 
 '''
 results = {1: 0, 2: 0, 'Tie': 0}
