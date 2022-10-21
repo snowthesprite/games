@@ -91,8 +91,6 @@ class Node :
             return 'Tie'
 
 class Con4Tree :
-    start = ['0000000' for _ in range(6)]
-
     def __init__(self, max_plr, num_layers) :
         self.root = None
         self.layer_num = num_layers
