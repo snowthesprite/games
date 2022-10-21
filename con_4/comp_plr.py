@@ -1,53 +1,39 @@
 class MaiaCompPlr :
-    def __init__(self) :
-        pass
+    def __init__(self, layers) :
+        self.num = None
+        self.strat = HeuristicStrat(layers)
+    
+    def set_player_number(self, n) :
+        self.num = n
+        self.strat.set_player_number(n)
+    
+    def choose_move(self, board, choices) :
+        board = self.make_string(board)
+        return self.strat.choose_move(board, choices)
+
+    def make_string(self, board) :
+        return [''.join([str(_) for _ in row]) for row in board]
+
+    def transpose(self, board) :
+        return [[board[row][col] for row in range(len(board))] for col in range(len(board[0]))]
+
+    def transpose_str(self, board) :
+        return [''.join([board[row][col] for row in range(len(board))] for col in range(len(board[0])))]
+
 
 class HeuristicStrat :
     def __init__(self, layers) :
         self.num = None
         self.tree = None
         self.layers = layers
-    '''
-    def heuristic(self, board) :
-        rows = [board[row] for row in range(6)] #row
-        cols = [''.join([board[row][col] for row in range(6)]) for col in range(7)]
-        l_dias = []
-        r_dias = []
-        diagonals = [(3,0),(4,0),(5,0),(5,1),(5,2),(5,3)]
-        for (row, col) in diagonals :
-            i=0
-            l_dia = []
-            r_dia = []
-            while row-i >=0 and col+i <= 6 :
-                l_dia.append(board[row-i][col+i])
-                r_dia.append(board[row-i][6-col-i])
-                i+= 1
-            l_dias.append(l_dia)
-            r_dias.append(r_dia)
-        
-        win_process = rows + cols + l_dias + r_dias
-
-        good_set = 0
-        bad_set = 0
-        for thing in win_process :
-            good_num = thing.count(str(1))
-            bad_num = thing.count(str(2))
-            empty = thing.count('0')
-            if good_num >= 2 and empty >= 2 :
-                good_set+= 1
-            if bad_num >= 2 and empty >= 2 :
-                bad_set+=1
-        return (good_set-bad_set)/len(win_process)
-    #'''
   
     def set_player_number(self, n) :
         self.num = n
-        self.tree = Con4Tree(n, self.layers, 'self.heuristic')
+        self.tree = Con4Tree(n, self.layers)
 
     def choose_move(self, board, choices) :
         self.tree.prune_tree(board)
         best = (None, -1)
-        #print(self.tree.nodes.keys())
 
         for col in choices :
             update = board.copy()
@@ -74,12 +60,6 @@ class Node :
     def check_for_winner(self, board) :
         rows = [board[row] for row in range(6)] #row
         cols = [''.join([board[row][col] for row in range(6)]) for col in range(7)]
-        '''
-        print(board)
-        for col in range(7) :
-            for row in range(6) :
-                print(board[row][col], (row,col))
-        #'''
         l_dias = []
         r_dias = []
         diagonals = [(3,0),(4,0),(5,0),(5,1),(5,2),(5,3)]
@@ -113,17 +93,14 @@ class Node :
 class Con4Tree :
     start = ['0000000' for _ in range(6)]
 
-    def __init__(self, max_plr, num_layers, heuristic_funct) :
-        self.root = None#start_board
+    def __init__(self, max_plr, num_layers) :
+        self.root = None
         self.layer_num = num_layers
         self.heuristic = self.heuristic_funct
-        #print(self.root)
         self.max_plr = max_plr
         self.leaf_nodes = [] 
-        self.nodes = {}#{self.root: Node(None, self.find_turn(start_board), self.root)}
-        #self.nodes[self.root].score = 'root'
-        #self.create_nodes(start_board)
-    #'''
+        self.nodes = {}
+
     def heuristic_funct(self, board) :
         moves = self.get_possible_moves(self.flaten_board(board))
         rows = [board[row] for row in range(6)] #row
@@ -170,39 +147,6 @@ class Con4Tree :
             elif lose in thing[index] or lose_2 in thing[index] or lose_3 in thing[index]:
                 bad += 1
         return (good-bad)/len(thing)
-    #'''
-    '''
-    def heuristic_funct(self, board) :
-        rows = [board[row] for row in range(6)] #row
-        cols = [''.join([board[row][col] for row in range(6)]) for col in range(7)]
-        l_dias = []
-        r_dias = []
-        diagonals = [(3,0),(4,0),(5,0),(5,1),(5,2),(5,3)]
-        for (row, col) in diagonals :
-            i=0
-            l_dia = []
-            r_dia = []
-            while row-i >=0 and col+i <= 6 :
-                l_dia.append(board[row-i][col+i])
-                r_dia.append(board[row-i][6-col-i])
-                i+= 1
-            l_dias.append(l_dia)
-            r_dias.append(r_dia)
-        
-        win_process = rows + cols + l_dias + r_dias
-
-        good_set = 0
-        bad_set = 0
-        for thing in win_process :
-            good_num = thing.count(str(self.max_plr))
-            bad_num = thing.count(str((self.max_plr % 2) + 1))
-            empty = thing.count('0')
-            if good_num >= 2 and empty >= 2 :
-                good_set+= 1
-            if bad_num >= 2 and empty >= 2 :
-                bad_set+=1
-        return (good_set-bad_set)/len(win_process)
-    '''
     
     def find_turn(self, board) : 
         if board.count('1') == board.count('2') :
@@ -211,7 +155,6 @@ class Con4Tree :
             return 2
 
     def get_possible_moves(self, game_state) :
-        #print(game_state)
         if self.nodes[game_state].winner != None :
             return [[]]
 
@@ -250,7 +193,6 @@ class Con4Tree :
                 if self.nodes[choice].children != [] :
                     continue
 
-            #update = [choice[:value] + str(curr_plr) + choice[value+1:] for (row, col) in possible_choices]
             update = []
             for (row, col) in possible_choices :
                 new = self.inflate_board(choice)
@@ -268,8 +210,6 @@ class Con4Tree :
         self.leaf_nodes.extend(prev_choices)
         if len(set(self.leaf_nodes)) != len(self.leaf_nodes) :
             print("ERROR")
-            #prev_choices.extend([move for move in update if move not in prev_choices])
-        #return nodes
 
     def assign_values(self) :
         unassigned = self.leaf_nodes.copy()
@@ -304,27 +244,8 @@ class Con4Tree :
             else :
                 node.score = -1
             return
-        #print(self.inflate_board(board))
         
         node.score = self.heuristic(self.inflate_board(board))
-
-    def check_scores(self) :
-        queue = [self.root]
-        while queue != [] :
-            node = self.nodes[queue[0]]
-            if node.score == None :
-                print('This node has no score')
-                print(queue[0])
-                print('This nodes children are')
-                print(node.children)
-                print([self.nodes[child].score for child in node.children])
-                print()
-                print('this nodes parents are')
-                print(node.parent)
-                print([self.nodes[parent].score for parent in node.parent])
-                print('\n\n\n')
-            queue.extend(node.children)
-            queue.pop(0)
 
     def prune_tree(self, new_board) :
         self.leaf_nodes = []
