@@ -1,8 +1,8 @@
 import sys
 sys.path.append('con_4/games')
 from game_1 import Con4
-from tree_plr import TreePlayerHeuristic
-from rand_plr import Row3z
+from comp_plr import *
+from rand_plr import Row3
 
 '''
 results = {1: 0, 2: 0, 'Tie': 0}
@@ -15,12 +15,12 @@ print(results)
 
 
 '''
-tests = 10000
+tests = 20
 results = {1: 0, 2: 0, 'Tie': 0}
 #print('\n\n')
 for loop in range(tests) :
     print(loop)
-    players = [Row3(), Row3()]
+    players = [HeuristicStrat(4), Row3()]
     game = Con4(players)
     game.run_to_completion()
     results[game.winner]+= 1

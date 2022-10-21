@@ -125,9 +125,74 @@ def heuristic(board) :
                 bad_set+=1
         return (good_set-bad_set)/len(win_process)
 
-board = [''.join(['0' for _ in range(7)]) for __ in range(6)]
+def get_possible_moves(board) :
+        #print(game_state)
+        possible_moves = []
+        
+        cols = [[(row,col) for row in range(5,-1,-1)] for col in range(7)]
+        for col in cols :
+            for (row, col) in col :
+                if board[row][col] == '0' :
+                    possible_moves.append((row,col))
+                    break
+        return possible_moves     
 
-tree = Con4Tree(1, 6, heuristic)
+def size(board) :
+        moves = self.get_possible_moves(board)
+        rows = [board[row] for row in range(6)] #row
+        rows_m = [[(row, col) for col in range (7)] for row in range(6)]
+        cols = [''.join([board[row][col] for row in range(6)]) for col in range(7)]
+        cols_m = [[(row,col) for row in range(6)] for col in range(7)]
+        l_dias = []
+        r_dias = []
+        l_dias_m = []
+        r_dias_m = []
+        diagonals = [(3,0),(4,0),(5,0),(5,1),(5,2),(5,3)]
+        for (row, col) in diagonals :
+            i=0
+            l_dia = []
+            r_dia = []
+            l_dia_m = []
+            r_dia_m = []
+            while row-i >=0 and col+i <= 6 :
+                l_dia.append(board[row-i][col+i])
+                r_dia.append(board[row-i][6-col-i])
+                l_dia_m.append((row-1,col+i))
+                r_dia_m.append((row-i,6-col-i))
+                i+= 1
+            l_dias.append(''.join(l_dia))
+            r_dias.append(''.join(r_dia))
+            l_dias_m.append(l_dia_m)
+            r_dias_m.append(r_dia_m)
+        
+        thing = rows + cols + l_dias + r_dias
+        thing_m = rows_m + cols_m + l_dias_m + r_dias_m
+
+        good = 0
+        bad = 0
+        nmy = (self.num % 2) + 1
+        win = ''.join([str(self.num) for _ in range(3)])
+        lose = ''.join([str(nmy) for _ in range(3)])
+        lose_2 = f"{nmy}0{nmy}{nmy}"
+        lose_3 = f"{nmy}{nmy}0{nmy}"
+        for index in range(len(thing)) :
+            if set(thing_m[index]).isdisjoint(set(moves)):
+                continue
+            if win in thing[index] :
+                good += 1
+            elif lose in thing[index] or lose_2 in thing[index] or lose_3 in thing[index]:
+                bad += 1
+        return (good-bad)
+
+board = [''.join(['0' for _ in range(7)]) for __ in range(6)]
+'''
+t_1 = time.time()
+heuristic(board)
+t_2 = time.time()
+print(t_2-t_1)
+
+'''
+tree = Con4Tree(1, 7, 'size')
 t_1 = time.time()
 tree.prune_tree(board)
 t_2 = time.time()
@@ -140,6 +205,7 @@ tree.prune_tree(board)
 t_2 = time.time()
 print(t_2-t_1)
 
+#'''
 '''
 for node in tree.nodes :
     thing = tree.inflate_board(node)
