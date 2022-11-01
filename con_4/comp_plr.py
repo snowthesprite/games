@@ -1,7 +1,7 @@
-class MaiaCompPlr :
+class Maia :
     def __init__(self) :
         self.num = None
-        self.strat = HeuristicStrat()
+        self.strat = HeuristicStrat(6)
     
     def set_player_number(self, n) :
         self.num = n
@@ -22,10 +22,10 @@ class MaiaCompPlr :
 
 
 class HeuristicStrat :
-    def __init__(self) :
+    def __init__(self, layers) :
         self.num = None
         self.tree = None
-        self.layers = 6
+        self.layers = layers
   
     def set_player_number(self, n) :
         self.num = n

@@ -3,8 +3,8 @@
 from random import random
 
 class Con4 :
-    def __init__(self, players):
-        self.rand = round(random())
+    def __init__(self, players, loop):
+        self.rand = loop#round(random())
         self.players = players
         self.board = [''.join(['0' for _ in range(7)]) for __ in range(6)]
         self.determine_player_order()
@@ -17,7 +17,7 @@ class Con4 :
         self.players[1].set_player_number(2)
     
     def determine_player_order(self):
-        if self.rand == 1:
+        if self.rand % 2 == 1:
             self.players = self.players[::-1]
     
     def get_possible_moves_col(self) :
