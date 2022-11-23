@@ -1,5 +1,6 @@
 from neural_nets import *
 import math
+import time
 '''
 board = '000000000'
 
@@ -22,13 +23,19 @@ data = 0
 weights = 9
 
 nnf = NeuralNetField(node_layers, lambda x: 1 / (1 + math.e ** (-x)))
-'''
-nnf.create_gen(10)
-nn = nnf.curr_gen[0]
+#'''
+t_1 = time.time()
+nnf.create_gen(50)
+t_2 = time.time()
+print('Creation:', t_2 - t_1)
 
 #for (connection, weight) in nn.weights.items() :
 #    print(connection, weight)
-gen_scores = nnf.evolve(10)
+amt = 100
+t_1 = time.time()
+gen_scores = nnf.evolve(amt)
+t_2 = time.time()
+print('Evolution:', (t_2-t_1)/amt)
 
 import matplotlib.pyplot as plt
 plt.style.use('bmh')
