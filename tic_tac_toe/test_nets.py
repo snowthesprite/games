@@ -31,12 +31,13 @@ print('Creation:', t_2 - t_1)
 
 #for (connection, weight) in nn.weights.items() :
 #    print(connection, weight)
-amt = 100
+amt = 200
 t_1 = time.time()
 gen_scores = nnf.evolve(amt)
 t_2 = time.time()
 print('Evolution:', (t_2-t_1)/amt)
 
+#'''
 import matplotlib.pyplot as plt
 plt.style.use('bmh')
 x_axis = []
