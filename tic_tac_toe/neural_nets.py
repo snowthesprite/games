@@ -34,6 +34,7 @@ class NeuralNet ():
         score = 0
         for _ in range(30) :
             game.run_game()
+            
             if game.winner == 1 :
                 score += 1
             if game.winner == 2 :
@@ -135,18 +136,17 @@ class NeuralNetField ():
     def evolve(self, gens) :
         generations = {}
         for gen in range(gens) :
-            if gen % 5 == 0 :
+            if gen % 50 == 0 :
                 print('Gen:', gen)
                 #self.in_prog_graph(generations)
             gen_scores = [self.net.calc_score(inst['weights']) for inst in self.curr_gen]
-            gen_max = max(gen_scores)
-            generations[gen] = sum(gen_scores)/len(gen_scores)
+
+            generations[gen] = max(gen_scores)
 
             comp_scores = []
             for id in range(50) :
                 net_score = gen_scores[id]
                 ## Possible spot for error: May check against self
-                #score = sum([norm(net_score, choice(gen_scores)) for _ in range(10)])
                 score = sum([net_score - choice(gen_scores) for _ in range(10)])
                 comp_scores.append((id, score))
             
@@ -165,6 +165,7 @@ class NeuralNetField ():
         return generations
 
     def create_gen(self, amount) :
+        self.curr_gen = []
         for _ in range(amount) :
             hidden = randint(1, 11)
             net = {'weights': self.net.make_weights(hidden), 'hidden': hidden}
@@ -178,15 +179,7 @@ class NeuralNetField ():
             y_axis.append(avg)
         plt.plot(x_axis, y_axis) 
         plt.savefig('evolving_prog.png')
-
-
-def norm(num_1, num_2) :
-        if num_1 > num_2 :
-            return 1
-        elif num_1 < num_2 :
-            return -1
-        else :
-            return 0
+        
 
 class TicTacToe:
     def __init__(self, nn):
