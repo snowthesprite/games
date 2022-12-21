@@ -27,10 +27,11 @@ class NeuralNet ():
         self.nodes = {}
         self.create_nodes(node_layers, act_funct)
         self.weights = None
+        self.enemy = Enmy()
 
     def calc_score(self, weights) :
         self.weights = weights
-        game = TicTacToe(self)
+        game = TicTacToe(self, self.enemy)
         score = 0
         for _ in range(30) :
             game.run_game()
@@ -137,7 +138,7 @@ class NeuralNetField ():
         generations = {}
         for gen in range(gens) :
             if gen % 50 == 0 :
-                print('Gen:', gen)
+                print('Gen', gen)
                 #self.in_prog_graph(generations)
             gen_scores = [self.net.calc_score(inst['weights']) for inst in self.curr_gen]
 
@@ -182,8 +183,8 @@ class NeuralNetField ():
         
 
 class TicTacToe:
-    def __init__(self, nn):
-        self.players = [nn, Enmy()]
+    def __init__(self, nn, enemy):
+        self.players = [nn, enemy]
     
     def get_possible_moves(self) :
         possible_moves = [index for index in range(9) if self.board[index]=='0']

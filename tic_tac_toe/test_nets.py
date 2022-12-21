@@ -2,6 +2,8 @@ from neural_nets import *
 import math
 import time
 import matplotlib.pyplot as plt
+import pickle
+
 plt.style.use('bmh')
 
 def make_graph(gen) :
@@ -36,6 +38,7 @@ worlds = 2
 
 nnf = NeuralNetField(node_layers, lambda x: 1 / (1 + math.e ** (-x)))
 amt = 2
+pop = 50
 all_scores = []
 
 #nnf.create_gen(50)
@@ -44,10 +47,13 @@ all_scores = []
 #t2=time.time()
 #print('total',t2-t1)
 
-'''
+#'''
 for _ in range(worlds) :
-    nnf.create_gen(50)
+    nnf.create_gen(pop)
+    t1=time.time()
     gen_scores = nnf.evolve(amt)
+    t2=time.time()
+    print('world:', (t2-t1)/amt)
     all_scores.append(gen_scores)
     #make_graph(gen_scores, _)
     print(gen_scores)
