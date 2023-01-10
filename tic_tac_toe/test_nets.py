@@ -34,10 +34,10 @@ node_layers = [9,10,9]
 
 weights = 9
 
-worlds = 2
+worlds = 5
 
 nnf = NeuralNetField(node_layers, lambda x: 1 / (1 + math.e ** (-x)))
-amt = 2
+amt = 100
 pop = 50
 all_scores = []
 
@@ -48,21 +48,28 @@ all_scores = []
 #print('total',t2-t1)
 
 #'''
+t1=time.time()
 for _ in range(worlds) :
+    print(_)
     nnf.create_gen(pop)
-    t1=time.time()
-    gen_scores = nnf.evolve(amt)
-    t2=time.time()
-    print('world:', (t2-t1)/amt)
+    gen_scores = nnf.evolve(amt, _)
+    
+    
     all_scores.append(gen_scores)
     #make_graph(gen_scores, _)
-    print(gen_scores)
-    with open('filename.pickle', 'ab') as handle:
-        pickle.dump([nnf.curr_gen, gen_scores[len(gen_scores)-1]], handle, protocol=pickle.HIGHEST_PROTOCOL)
-    
-graph_all = {_: sum([world[_] for world in all_scores])/worlds for _ in range(amt)}
+    #print(gen_scores)
+    with open('lastgens.pickle', 'ab') as handle:
+        pickle.dump([nnf.curr_gen, gen_scores], handle, protocol=pickle.HIGHEST_PROTOCOL)
 
-make_graph(graph_all)
+t2=time.time()
+print('world:', (t2-t1)/(amt*worlds))
+
+#with open('allscores.pickle', 'wb') as handle:
+#    pickle.dump(all_scores, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+#graph_all = {_: sum([world[_] for world in all_scores])/worlds for _ in range(amt)}
+
+#make_graph(graph_all)
 
 '''
 

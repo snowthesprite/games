@@ -134,12 +134,12 @@ class NeuralNetField ():
                 
         return child
 
-    def evolve(self, gens) :
+    def evolve(self, gens, world) :
         generations = {}
         for gen in range(gens) :
             if gen % 50 == 0 :
                 print('Gen', gen)
-                #self.in_prog_graph(generations)
+                self.in_prog_graph(generations, world)
             gen_scores = [self.net.calc_score(inst['weights']) for inst in self.curr_gen]
 
             generations[gen] = max(gen_scores)
@@ -172,14 +172,15 @@ class NeuralNetField ():
             net = {'weights': self.net.make_weights(hidden), 'hidden': hidden}
             self.curr_gen.append(net)
 
-    def in_prog_graph(self, gen_scores) :
+    def in_prog_graph(self, gen_scores, world) :
         x_axis = []
         y_axis = []
         for (gen, avg) in gen_scores.items() :
             x_axis.append(gen)
             y_axis.append(avg)
         plt.plot(x_axis, y_axis) 
-        plt.savefig('evolving_prog.png')
+        plt.savefig('evolving_prog'+str(world+16)+'.png')
+        plt.clf()
         
 
 class TicTacToe:
