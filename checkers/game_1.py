@@ -2,8 +2,8 @@
 
 from random import random
 
-class Con4 :
-    def __init__(self, players, loop):
+class Checkers :
+    def __init__(self, players, loop=0):
         self.rand = loop#round(random())
         self.players = players
         self.board = [[(i+j)%2 * ((3 - (j<3)-(j<4))%3) for i in range(8)] for j in range(8)]
@@ -76,16 +76,15 @@ class Con4 :
 
     def get_pos_moves_combo(self, coord) :
         translation = self.get_possible_trans(self.board[coord[0]][coord[1]])
-        can_move = []
+        combat = []
         for trans in translation :
             new_coord = [coord[0] + trans[0], coord[1] + trans[1]]
-            if this.out_of_bounds(new_coord) or this.board[coord[0]][coord[1]] != 0 :
+            if this.out_of_bounds(new_coord) or self.friend_present(new_coord, coord) :
                 continue
             if this.foe_present(new_coord, coord) and this.next_clear(new_coord, trans) :
-                can_move.append((2*trans[0], 2*trans[1]))
-            else :
-                can_move.append(trans)
-        return can_move
+                combat.append((2*trans[0], 2*trans[1]))
+        combat.append((0,0))
+        return [(coord, trans) for trans in combat]
 
 
     def get_pieces(self, plr_num) :
@@ -94,6 +93,7 @@ class Con4 :
             for col in range(8) :
                 if abs(self.board[row][col]) == plr_num :
                     pieces.append((row, col))
+        return pieces
 
 
     def get_all_moves(self, plr_num) :
@@ -106,11 +106,10 @@ class Con4 :
 
 
     def capture(self, move) :
-        coord_2 = move[0]
-        coord = (coord_2[0] + move[1][0], coord_2[1] + move[1][1])
-        self.update_board(coord_2, coord)
-        coord_2 = (coord[0] + move[1][0], coord[1] + move[1][1])
-        self.update_board(coord, coord_2)
+        self.update_board(move[0], move[1])
+        captured = [move[1][0]/2, move[1][1]/2]
+        c_r, c_c = move[0][0]+captured[0], move[0][1]+captured[1]
+        self.board[c_r][c_c] = 0
 
 
     def side_moves(self, move) :
@@ -118,22 +117,23 @@ class Con4 :
         while 2 in move[1] or -2 in move[1] :
             self.capture(move)
             new_coord = (new_coord[0] + move[1][0], new_coord[1] + move[1][1])
-            pos_moves = self.get_pos_moves_combo(new_coord)
-            if pos_moves[1] :
-                move = self.player[plr_num-1].choose_move([(new_coord, trans) for trans in pos_moves[0]])
-            else :
-                break
+            move = self.player[plr_num-1].choose_move(self.get_pos_moves_combo(new_coord))
+        self.update_board(new_coord, move[1])
 
 
-    def complete_round(self) :
+    def run_game(self) :
         plr_num = 1
         while self.winner == None :
-            move = self.players[plr_num-1].choose_move(self.get_all_moves(plr_num))
+            all_moves = self.get_all_moves(plr_num)
+            if all_moves == [] :
+                self.winner = (plr_num % 2) + 1
+                break
+            move = self.players[plr_num-1].choose_move(all_moves)
             self.side_moves(move)
+            plr_num = (plr_num % 2) + 1
 
 
-
-
+    '''
     def complete_round(self):
         for player in self.players:
             choices = self.get_possible_moves_col()
@@ -148,15 +148,10 @@ class Con4 :
     def run_to_completion(self):
         while self.winner == None:
             self.complete_round()
-        '''
         if self.rand == 1 and type(self.winner) == int:
             #print(type(self.winner))
             self.winner = (self.winner % 2) + 1
-        #'''
-
-    def check_for_winner(self) :
-        pass
-
+    #'''
     def print_board(self):
         for row in self.board:
             row_string = ''
@@ -172,7 +167,8 @@ class Con4 :
             
         #print('\n')
     
-    def update_board(self, old_coord, new_coord) : 
-        piece = self.board[old_coord[0]][old_coord[1]]
-        self.board[old_coord[0]][old_coord[1]] = 0
+    def update_board(self, coord, trans) : 
+        piece = self.board[coord[0]][coord[1]]
+        new_coord = (coord[0] + trans[0], coord[1] + trans[1])
+        self.board[coord[0]][coord[1]] = 0
         self.board[new_coord[0]][new_coord[1]] = piece
