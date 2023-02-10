@@ -28,7 +28,16 @@ print('Percentage Won by Row3 Plr:', results[2]/tests)
 print('Percentage of Cats Games:', results['Tie']/tests)
 #'''
 
+#print(chr(0+97) + 'a')
 
+
+#'''
 players = [InputPlayer(), RandPlr()]
 game = Checkers(players)
 game.run_game()
+'''
+for _ in range(20) :
+    players = [RandPlr(), RandPlr()]
+    game = Checkers(players)
+    game.run_game()
+#'''
