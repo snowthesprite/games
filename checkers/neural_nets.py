@@ -10,6 +10,7 @@ plt.style.use('bmh')
 #'''
 class Node (): 
     def __init__(self, id, act_funct) :
+        #xs is the input, or in this case, the board
         self.spec = None
         self.id = id
         self.parents = []
@@ -26,29 +27,6 @@ class NeuralNet ():
     def __init__(self, node_layers, act_funct) :
         self.nodes = {}
         self.create_nodes(node_layers, act_funct)
-        self.weights = None
-        #self.enemy = Enmy()
-
-    ## NEED TO CHANGE
-    
-    def choose_move(self, board, possible_moves) :
-        v_board = self.vector_board(board)
-        layer = self.nodes[len(self.nodes)-1]
-        move_val = [layer[space].output(self.weights, v_board) if space in possible_moves else -100 for space in range(9)]
-        return move_val.index(max(move_val))
-
-    def vector_board(self, board) :
-        v_board = []
-        for space in board :
-            if space == '1' :
-                v_board.append(1)
-            elif space == '2' :
-                v_board.append(-1)
-            else :
-                v_board.append(0)
-        return v_board
-
-    ## END NEED TO CHANGE
 
     #Node/Weight Generation
 
@@ -110,8 +88,9 @@ class NeuralNetField ():
         self.mut_rate = 0.05
         self.num_weights = num_weights
         self.net = NeuralNet(layers, act_funct)
-
         self.curr_gen = []
+        self.p1 = Player(self.net.nodes)
+        self.p2 = Player(self.net.nodes)
 
     def reproduce(self, parent, amount=1) :
         mutate = parent['mutate'] * math.exp(normal() / (2**(1/2) * self.num_weights ** (1/4)))
@@ -126,32 +105,30 @@ class NeuralNetField ():
             child['weights'][connect] = weight + mutate * normal()
         return child
 
+    def calc_score(self, plr) :
+        score = 0
+        p1.inst(plr)
+        for _ in range(5) :
+            p2.inst(choice(self.curr_gen))
+            game = Checkers([p1, p2])
+            game.run_game()
+            if game.winner == 1 :
+                score += 1
+            if game.winner == 2 :
+                score -= 2
+        return score
+
     def evolve(self, gens, world) :
         generations = {}
         for gen in range(gens) :
             if gen % 50 == 0 :
                 print('Gen', gen)
                 self.in_prog_graph(generations, world)
-            
 
-            for id in range(self.curr_gen) :
-                inst = self.curr_gen[id]
-                for _ in range(5) :
-                    enmy = choice(self.curr_gen)
-                    game = Checkers()
-
-
-            comp_scores = []
-            for id in range(50) :
-                net_score = gen_scores[id]
-                ## Possible spot for error: May check against self
-                score = sum([net_score - choice(gen_scores) for _ in range(10)])
-                comp_scores.append((id, score))
+            scores = [(id, self.calc_score(self.curr_gen[id])) for id in range(30)]
+            scores.sort(reverse=True, key=(lambda scr : scr[1]))
             
-            comp_scores.sort(reverse=True, key=(lambda scr : scr[1]))
-            #print(comp_scores[:25])
-            
-            cont_pop = [self.curr_gen[net[0]] for net in comp_scores[:25]]
+            cont_pop = [self.curr_gen[net[0]] for net in scores[:15]]
             new_pop = []
             id = 0
             while len(new_pop + cont_pop) < len(self.curr_gen) :
@@ -214,10 +191,15 @@ class TicTacToe:
         self.board = self.board[:choice] + str(plr_num) + self.board[choice+1:]
 '''
 
-class Enmy (): 
+class Player (): 
     def __init__(self, nodes) :
         self.nodes = nodes
         self.weights = None
+        self.k = None
+
+    def inst(self, net_dict) :
+        self.weights = net_dict['weights']
+        self.k = net_dict['k']
 
     ## NEED TO CHANGE
     
