@@ -6,7 +6,15 @@ class Checkers :
     def __init__(self, players, loop=0):
         self.rand = loop#round(random())
         self.players = players
-        self.board = [[(i+j)%2 * ((3 - (j<3)-2*(j>4))%3) for i in range(8)] for j in range(8)]
+        #self.board = [[(i+j)%2 * ((3 - (j<3)-2*(j>4))%3) for i in range(8)] for j in range(8)]
+        self.board = [[0,0,0,0,0,0,0,0],
+                      [0,0,2,0,2,0,2,0],
+                      [0,0,0,0,0,0,0,0],
+                      [0,0,2,0,2,0,0,0],
+                      [0,0,0,1,0,0,0,0],
+                      [0,0,2,0,2,0,2,0],
+                      [0,0,0,0,0,0,0,0],
+                      [0,0,0,0,0,0,0,0],]
         #self.determine_player_order()
         self.set_player_numbers()
         self.round = 1
@@ -69,25 +77,25 @@ class Checkers :
                 continue
             if self.foe_present(new_coord, coord) :
                 if self.next_clear(new_coord, trans) :
-                    can_move.append((2*trans[0], 2*trans[1]))
+                    can_move.append([(2*trans[0], 2*trans[1]), [new_coord]])
                     #print('ran')
             else :
-                can_move.append(trans)
+                can_move.append([trans, []])
         return can_move
 
 
-    def get_pos_moves_combo(self, coord) :
-        translation = self.get_possible_trans(self.board[coord[0]][coord[1]])
+    def pos_combo(self, coord, piece) :
+        #piece is actually the piece's coords
+        translation = self.get_possible_trans(self.board[piece[0]][piece[1]])
         combat = []
         for trans in translation :
             new_coord = [coord[0] + trans[0], coord[1] + trans[1]]
-            if self.out_of_bounds(new_coord) or self.friend_present(new_coord, coord) :
+            if self.out_of_bounds(new_coord) or self.friend_present(new_coord, piece) :
                 continue
-            if self.foe_present(new_coord, coord) :
+            if self.foe_present(new_coord, piece) :
                 if self.next_clear(new_coord, trans) :
-                    combat.append((2*trans[0], 2*trans[1]))
-        combat.append((0,0))
-        return [(coord, trans) for trans in combat]
+                    combat.append([(2*trans[0], 2*trans[1]), [new_coord]])
+        return combat
 
 
     def get_pieces(self, plr_num) :
@@ -104,25 +112,30 @@ class Checkers :
         can_move = []
         for coord in pieces :
             translations = self.get_possible_moves(coord)
-            can_move.extend([(coord, trans) for trans in translations])
+            can_move.extend([[coord] + trans for trans in translations])
+        id = 0
+        while id < len(can_move) :
+            move = can_move[id]
+            if move[2] != [] :
+                combo = self.pos_combo((move[0][0]+move[1][0], move[0][1]+move[1][1]), move[0])
+                #adds all combo moves
+                for comb in combo :
+                    if not any(victim in move[2] for victim in comb[1]) :
+                        can_move.append([move[0],(move[1][0]+comb[0][0], move[1][1]+comb[0][1]), move[2]+comb[1]])
+            id += 1
+
         return can_move
+        
 
+    def run_move(self, move, plr_num) :
+        origin = move[0]
+        trans = move[1]
+        captures = move[2]
+        self.update_board(origin, trans)
+        for capt in captures :
+            self.board[capt[0]][capt[1]] = 0
 
-    def capture(self, move) :
-        self.update_board(move[0], move[1])
-        captured = [int(move[1][0]/2), int(move[1][1]/2)]
-        c_r, c_c = move[0][0]+captured[0], move[0][1]+captured[1]
-        self.board[c_r][c_c] = 0
-
-
-    def side_moves(self, move, plr_num) :
-        while 2 in move[1] or -2 in move[1] :
-            self.capture(move)
-            new_coord = (move[0][0] + move[1][0], move[0][1] + move[1][1])
-            move = self.players[plr_num-1].choose_move(self.board, self.get_pos_moves_combo(new_coord))
-        self.update_board(move[0], move[1])
-        return (move[0][0]+move[1][0], move[0][1]+move[1][1])
-
+        return (origin[0]+trans[0], origin[1] + trans[1])
 
     def run_game(self) :
         plr_num = 1
@@ -136,7 +149,7 @@ class Checkers :
                 self.print_board()
                 break
             move = self.players[plr_num-1].choose_move(self.board, all_moves)
-            end_coord = self.side_moves(move, plr_num)
+            end_coord = self.run_move(move, plr_num)
             self.crown(plr_num, end_coord)
             plr_num = (plr_num % 2) + 1
             turn += 1

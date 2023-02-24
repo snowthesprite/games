@@ -30,11 +30,12 @@ class InputPlayer:
         self.print_board(board)
         dic_choice = self.translate_choices(choices)
         l = list(dic_choice.keys())
-        print(l)
+        for _ in range(len(l)) :
+            print(_, l[_])
         choice = input('Pick a mvmt: ')
         print()
-        while choice not in l :
-            choice = int(input("Not valid, pick valid mvmt: "))
+        #while choice not in l :
+        #    choice = int(input("Not valid, pick valid mvmt: "))
         #update = board[:choice] + str(self.num) + board[choice+1:]
         #print('\n\n')
         #self.print_board(update)
@@ -50,13 +51,16 @@ class InputPlayer:
             print('\n\n')
         '''
         #return self.get_input(choices)
-        return dic_choice[choice]
+        return dic_choice[l[int(choice)]]
 
     def translate_choices(self, choices) :
         dic_choices = {}
-        for (start, trans) in choices :
+        for (start, trans, captures) in choices :
             end_row, end_col = start[0] + trans[0], start[1] + trans[1]
-            key = chr(start[0] + 97) + chr(start[1]+97) + ' ' + chr(end_row + 97) + chr(end_col + 97)
-            dic_choices[key] = (start, trans)
+            key = chr(start[0] + 97) + chr(start[1]+97) + ' ' + chr(end_row + 97) + chr(end_col + 97) + ':'
+            for capt in captures :
+                key += ' '
+                key += chr(capt[0]+97) + chr(capt[1] + 97)
+            dic_choices[key] = [start, trans, captures]
         return dic_choices
 

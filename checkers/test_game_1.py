@@ -30,13 +30,13 @@ print('Percentage of Cats Games:', results['Tie']/tests)
 
 #print(chr(0+97) + 'a')
 
-
 #'''
 players = [InputPlayer(), RandPlr()]
+#players = [RandPlr(), RandPlr()]
 game = Checkers(players)
 game.run_game()
 '''
-for _ in range(20) :
+for _ in range(100) :
     players = [RandPlr(), RandPlr()]
     game = Checkers(players)
     game.run_game()

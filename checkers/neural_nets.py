@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 plt.style.use('bmh')
 
 #'''
+## Takes approximently 0.006 sec for generation
 class Node (): 
     def __init__(self, id, act_funct) :
         #xs is the input, or in this case, the board
@@ -22,6 +23,9 @@ class Node ():
     
     def input(self) :
         self.value = lambda weights, xs : xs[self.id-1]
+
+    def piece_value(self) :
+        self.value = lambda weights, xs : sum([parent.value for parent in self.parents])
 
 class NeuralNet (): 
     def __init__(self, node_layers, act_funct) :
@@ -53,6 +57,8 @@ class NeuralNet ():
         #Makes piece Difference
         new_node = Node(id+1, act_funct)
         new_node.parents = self.make_node_specifics(1)
+        new_node.piece_value()
+        new_node.spec = 'piece'
         self.nodes[len(layers)-1][0].parents.append(new_node)
         self.nodes[len(layers)-2].append(new_node)
 
@@ -78,6 +84,8 @@ class NeuralNet ():
         while queue != [] :
             node_to = queue[0]
             queue.pop(0)
+            if node_to.spec == 'piece' :
+                continue
             for node_from in node_to.parents :
                 weights[(node_from.id, node_to.id)] = uniform(-0.2, 0.2)
             queue.extend([node for node in node_to.parents if node not in queue])
@@ -85,7 +93,7 @@ class NeuralNet ():
 
 class NeuralNetField (): 
     def __init__(self, layers, num_weights, act_funct) :
-        self.mut_rate = 0.05
+        #self.mut_rate = 0.05
         self.num_weights = num_weights
         self.net = NeuralNet(layers, act_funct)
         self.curr_gen = []
