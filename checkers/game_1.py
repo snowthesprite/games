@@ -6,7 +6,8 @@ class Checkers :
     def __init__(self, players, loop=0):
         self.rand = loop#round(random())
         self.players = players
-        #self.board = [[(i+j)%2 * ((3 - (j<3)-2*(j>4))%3) for i in range(8)] for j in range(8)]
+        self.board = [[(i+j)%2 * ((3 - (j<3)-2*(j>4))%3) for i in range(8)] for j in range(8)]
+        '''
         self.board = [[0,0,0,0,0,0,0,0],
                       [0,0,2,0,2,0,2,0],
                       [0,0,0,0,0,0,0,0],
@@ -15,6 +16,7 @@ class Checkers :
                       [0,0,2,0,2,0,2,0],
                       [0,0,0,0,0,0,0,0],
                       [0,0,0,0,0,0,0,0],]
+        #'''
         #self.determine_player_order()
         self.set_player_numbers()
         self.round = 1
@@ -30,6 +32,7 @@ class Checkers :
         if self.rand % 2 == 1:
             self.players = self.players[::-1]
 
+    ## START FIND MOVES
     
     def get_possible_trans(self, piece) :
         if piece < 0 :
@@ -125,6 +128,8 @@ class Checkers :
             id += 1
 
         return can_move
+    
+    ## END FINDS MOVES
         
 
     def run_move(self, move, plr_num) :
@@ -134,8 +139,9 @@ class Checkers :
         self.update_board(origin, trans)
         for capt in captures :
             self.board[capt[0]][capt[1]] = 0
-
-        return (origin[0]+trans[0], origin[1] + trans[1])
+        
+        end_coord = (origin[0]+trans[0], origin[1] + trans[1])
+        self.crown(plr_num, end_coord)
 
     def run_game(self) :
         plr_num = 1
@@ -149,8 +155,7 @@ class Checkers :
                 self.print_board()
                 break
             move = self.players[plr_num-1].choose_move(self.board, all_moves)
-            end_coord = self.run_move(move, plr_num)
-            self.crown(plr_num, end_coord)
+            self.run_move(move, plr_num)
             plr_num = (plr_num % 2) + 1
             turn += 1
 

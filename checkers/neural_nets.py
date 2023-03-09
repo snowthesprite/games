@@ -9,7 +9,7 @@ plt.style.use('bmh')
 
 #'''
 ## Takes approximently 0.006 sec for generation
-class Node (): 
+class NetNode (): 
     def __init__(self, id, act_funct) :
         #xs is the input, or in this case, the board
         self.spec = None
@@ -32,7 +32,7 @@ class NeuralNet ():
         self.nodes = {}
         self.create_nodes(node_layers, act_funct)
 
-    #Node/Weight Generation
+    #NetNode/Weight Generation
 
     def create_nodes(self, node_layers, act_funct) :
         layers = self.create_layers(node_layers)
@@ -41,7 +41,7 @@ class NeuralNet ():
             self.nodes[layer] = []
             for node in layers[layer] :
                 id += 1
-                new_node = Node(id, act_funct)
+                new_node = NetNode(id, act_funct)
                 if node == 'bias' : 
                     new_node.spec = 'bias'
                     new_node.value = lambda weights, xs : 1
@@ -55,7 +55,7 @@ class NeuralNet ():
                 new_node.parents = self.make_node_specifics(layer)
                 self.nodes[layer].append(new_node)
         #Makes piece Difference
-        new_node = Node(id+1, act_funct)
+        new_node = NetNode(id+1, act_funct)
         new_node.parents = self.make_node_specifics(1)
         new_node.piece_value()
         new_node.spec = 'piece'
