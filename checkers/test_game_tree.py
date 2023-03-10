@@ -1,8 +1,21 @@
 from game_tree import *
+import random as rand
 
-tree = CheckersTree(1, 'num_layers', 'heuristic_funct')
+#'''
+allt = []
+for _ in range(1) :
+    tree = CheckersTree(1, 4, 'heuristic_funct')
+    tree.leaf_nodes = []
+    times = 0
+    fake_leaf = [tree.root]
+    while fake_leaf != [] :
+        tree.root = rand.choice(fake_leaf)
+        fake_leaf = tree.create_nodes('start_board', tree.nodes[tree.root].plr)
+        times += 1
+    allt.append(times)
 
-tree.create_nodes('start_board', 1)
+print(sum(allt)/20)
+#'''
 
 '''
 boa = [[0,0,0,0,0,0,0,0],
