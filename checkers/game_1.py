@@ -158,6 +158,8 @@ class Checkers :
             self.run_move(move, plr_num)
             plr_num = (plr_num % 2) + 1
             turn += 1
+            if turn > 100 :
+                self.winner = 'Tie'
 
     def crown(self, plr_num, end_coord) :
         piece = self.board[end_coord[0]][end_coord[1]]

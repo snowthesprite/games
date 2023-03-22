@@ -4,6 +4,11 @@ from random import choice
 from numpy.random import normal, uniform, randint
 import math
 
+from game_tree import *
+from tree_player import *
+from semi_int_plr import *
+from game_1 import *
+
 import matplotlib.pyplot as plt
 plt.style.use('bmh')
 
@@ -115,10 +120,10 @@ class NeuralNetField ():
 
     def calc_score(self, plr) :
         score = 0
-        p1.inst(plr)
+        self.p1.inst(plr)
         for _ in range(5) :
-            p2.inst(choice(self.curr_gen))
-            game = Checkers([p1, p2])
+            self.p2.inst(choice(self.curr_gen))
+            game = Checkers([TreePlayerNet(self.p1), TreePlayerNet(self.p2)])
             game.run_game()
             if game.winner == 1 :
                 score += 1
@@ -208,24 +213,20 @@ class Player ():
     def inst(self, net_dict) :
         self.weights = net_dict['weights']
         self.k = net_dict['k']
-
-    ## NEED TO CHANGE
     
-    def choose_move(self, board, possible_moves) :
+    def find_value(self, board) :
         v_board = self.vector_board(board)
-        layer = self.nodes[len(self.nodes)-1]
-        move_val = [layer[space].output(self.weights, v_board) if space in possible_moves else -100 for space in range(9)]
-        return move_val.index(max(move_val))
+        output_node = self.nodes[len(self.nodes)-1][0]
+        val = layer.output(self.weights, v_board)
+        return val
 
     def vector_board(self, board) :
         v_board = []
         for space in board :
-            if space == '1' :
-                v_board.append(1)
-            elif space == '2' :
-                v_board.append(-1)
+            if space == -1 :
+                v_board.append(self.k)
+            elif space == -2 :
+                v_board.append(- self.k)
             else :
-                v_board.append(0)
+                v_board.append(space)
         return v_board
-
-    ## END NEED TO CHANGE
