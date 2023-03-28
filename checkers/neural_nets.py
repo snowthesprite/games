@@ -4,7 +4,6 @@ from random import choice
 from numpy.random import normal, uniform, randint
 import math
 
-from game_tree import *
 from tree_player import *
 from semi_int_plr import *
 from game_1 import *
@@ -30,7 +29,7 @@ class NetNode ():
         self.value = lambda weights, xs : xs[self.id-1]
 
     def piece_value(self) :
-        self.value = lambda weights, xs : sum([parent.value for parent in self.parents])
+        self.value = lambda weights, xs : sum([parent.value(weights, xs) for parent in self.parents])
 
 class NeuralNet (): 
     def __init__(self, node_layers, act_funct) :
@@ -85,7 +84,7 @@ class NeuralNet ():
 
     def make_weights(self) :
         weights = {}
-        queue = self.nodes[len(self.nodes)-1]
+        queue = [self.nodes[len(self.nodes)-1][0]]
         while queue != [] :
             node_to = queue[0]
             queue.pop(0)
@@ -119,6 +118,7 @@ class NeuralNetField ():
         return child
 
     def calc_score(self, plr) :
+        print('run')
         score = 0
         self.p1.inst(plr)
         for _ in range(5) :
@@ -127,16 +127,18 @@ class NeuralNetField ():
             game.run_game()
             if game.winner == 1 :
                 score += 1
-            if game.winner == 2 :
+            elif game.winner == 2 :
                 score -= 2
+            print(game.round)
+
         return score
 
     def evolve(self, gens, world) :
         generations = {}
         for gen in range(gens) :
-            if gen % 50 == 0 :
+            if gen % 1 == 0 :
                 print('Gen', gen)
-                self.in_prog_graph(generations, world)
+                #self.in_prog_graph(generations, world)
 
             scores = [(id, self.calc_score(self.curr_gen[id])) for id in range(30)]
             scores.sort(reverse=True, key=(lambda scr : scr[1]))
@@ -149,6 +151,7 @@ class NeuralNetField ():
                 new_pop.append(self.reproduce(parent))
                 id = (id + 1) % len(cont_pop)
             self.curr_gen = cont_pop + new_pop
+            print()
             
         return generations
 
@@ -167,42 +170,7 @@ class NeuralNetField ():
         plt.plot(x_axis, y_axis) 
         plt.savefig('evolving_prog'+str(world+16)+'.png')
         plt.clf()
-        
-'''
-class TicTacToe:
-    def __init__(self, nn, enemy):
-        self.players = [nn, enemy]
     
-    def get_possible_moves(self) :
-        possible_moves = [index for index in range(9) if self.board[index]=='0']
-        return possible_moves
-
-    def run_game(self) :
-        self.board = '000000000'
-        self.winner = None
-        plr_id = 0
-        while self.winner == None :
-            plr = self.players[plr_id]
-            choices = self.get_possible_moves()
-            player_move = plr.choose_move(self.board, choices)
-            self.update_board(plr_id+1, player_move)
-            self.winner = self.check_for_winner()
-            plr_id = (plr_id + 1) % 2
-
-    def check_for_winner(self) :
-        thing = [self.board[index: index+3] for index in range(0,9,3)] #row
-        for index in range(3) :
-            thing.append(self.board[index] + self.board[index+3] + self.board[index+6]) #column
-        thing.extend([self.board[0] + self.board[4] + self.board[8], self.board[2] + self.board[4] + self.board[6]]) #diagonal
-        for stuff in thing :
-            if len(set(stuff)) == 1 and '0' not in set(stuff) :
-                return int(stuff[0])
-        if '0' not in self.board :
-            return 'Tie'
-    
-    def update_board(self, plr_num, choice) : 
-        self.board = self.board[:choice] + str(plr_num) + self.board[choice+1:]
-'''
 
 class Player (): 
     def __init__(self, nodes) :
@@ -212,21 +180,27 @@ class Player ():
 
     def inst(self, net_dict) :
         self.weights = net_dict['weights']
-        self.k = net_dict['k']
+        self.k = net_dict['K']
     
     def find_value(self, board) :
         v_board = self.vector_board(board)
-        output_node = self.nodes[len(self.nodes)-1][0]
-        val = layer.output(self.weights, v_board)
+        output_node = self.nodes[len(self.nodes)-1]
+        output_node = output_node[0]
+        val = output_node.output(self.weights, v_board)
         return val
 
     def vector_board(self, board) :
         v_board = []
-        for space in board :
-            if space == -1 :
-                v_board.append(self.k)
-            elif space == -2 :
-                v_board.append(- self.k)
-            else :
-                v_board.append(space)
+        for row_id in range(len(board)) :
+            row = board[row_id]
+            for space_id in range((1+row_id)%2, len(row), 2) :
+                space = row[space_id]
+                if space == -1 :
+                    v_board.append(self.k)
+                elif space == -2 :
+                    v_board.append(- self.k)
+                elif space == 2 :
+                    v_board.append(-1)
+                else :
+                    v_board.append(space)
         return v_board

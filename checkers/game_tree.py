@@ -10,9 +10,15 @@ class TreeNode:
         self.score = None
         self.board = game_state
         self.winner = None
+        if parent == None :
+            self.parent = []
 
     def assign_winner(self):
         self.winner = self.plr
+    
+    def reset(self, root) :
+        self.score = None
+        self.parent = []
 
 
 class CheckersTree:
@@ -20,13 +26,15 @@ class CheckersTree:
     #start = [[(i+j)%2 * ((3 - (j<3)-2*(j>4))%3) for i in range(8)] for j in range(8)]
 
     def __init__(self, max_plr, num_layers, heuristic_funct):
-        start = [[(i+j)%2 * ((3 - (j<3)-2*(j>4))%3) for i in range(8)] for j in range(8)]
-        self.root = self.list_to_str(start, 1)
+        #start = [[(i+j)%2 * ((3 - (j<3)-2*(j>4))%3) for i in range(8)] for j in range(8)]
+        #self.root = self.list_to_str(start, 1)
         self.max_lyr = num_layers
         self.heuristic = heuristic_funct
         self.max_plr = max_plr
         self.leaf_nodes = []
-        self.nodes = {self.root: TreeNode(None, 1, start)}
+        self.fake_leaf = []
+        self.nodes = {}#{self.root: TreeNode(None, 1, start)}
+        #self.create_nodes([self.root], 1)
 
     # START FIND MOVES
 
@@ -152,10 +160,10 @@ class CheckersTree:
         next_queue = [0]
         cur_plr = plr
         layer = cur_lyr
-        while layer < self.max_lyr and next_queue != []:
+        while layer < self.max_lyr and next_queue != [] :
             next_queue = []
 
-            while cur_queue != []:
+            while cur_queue != [] :
                 s_board = cur_queue.pop(0)
                 l_board = self.nodes[s_board].board
                 possible_choices = self.get_all_moves(l_board, cur_plr)
@@ -172,8 +180,6 @@ class CheckersTree:
                     self.nodes[s_board].children.append(s_move)
 
                     if s_move in self.nodes :
-                        if self.nodes[s_move].plr != (cur_plr % 2) + 1 :
-                            print('issue')
                         self.nodes[s_move].parent.append(s_board)
                     else:
                         next_queue.append(s_move)
@@ -185,7 +191,7 @@ class CheckersTree:
             cur_plr = (cur_plr % 2) + 1
 
             if layer == self.max_lyr :
-                self.fake_leaf.extend(next_queue)
+                self.fake_leaf = next_queue
 
         if len(set(self.leaf_nodes)) != len(self.leaf_nodes):
             print("ERROR")
@@ -193,7 +199,7 @@ class CheckersTree:
             print(len(self.leaf_nodes))
 
     def assign_values(self):
-        unassigned = self.leaf_nodes.copy()
+        unassigned = self.leaf_nodes + self.fake_leaf
         index = 0
 
         while len(unassigned) >= 1:
@@ -204,20 +210,20 @@ class CheckersTree:
             unassigned.extend(
                 [parent for parent in node.parent if self.nodes[parent].score != 'root' and parent not in unassigned])
 
-            child_scores = [self.nodes[child].score for child in node.children]
-            if None in child_scores:
+            child_scores = [self.nodes[child].score for child in node.children if self.nodes[child].score != 'root']
+            if None in child_scores :
                 index += 1
                 continue
 
             if child_scores == []:
-                self.find_score(unassigned[index], node)
-            elif node.player == self.max_plr:
+                self.find_score(node)
+            elif node.plr == self.max_plr:
                 node.score = max(child_scores)
             else:
                 node.score = min(child_scores)
             unassigned.pop(index)
 
-    def find_score(self, board, node):
+    def find_score(self, node):
         if node.winner != None:
             if node.winner == 'Tie':
                 node.score = 0
@@ -227,7 +233,7 @@ class CheckersTree:
                 node.score = -1
             return
 
-        node.score = self.heuristic(board)
+        node.score = self.heuristic(node.board)
 
     def check_scores(self):
         queue = [self.root]
@@ -247,26 +253,72 @@ class CheckersTree:
             queue.extend(node.children)
             queue.pop(0)
 
+
     def reset_values(self) :
+        ''' Vers 1
         queue = [self.root]
+        fin = []
         cont = []
         while queue != [] :
             s_board = queue.pop(0)
+            fin.append(s_board)
             node = self.nodes[s_board]
-            node.score = None
-            kids = node.children
-            queue.extend([kid for kid in kids if kid not in queue])
-
-            if kids == [] :
+            for kid in node.children :
+                if kid not in queue and kid != self.root :
+                    print(kid in fin)
+                    self.nodes[kid].reset(self.root)
+                    queue.append(kid)
+                self.nodes[kid].parent.append(s_board)
+                    
+            if node.children == [] :
                 if s_board in self.fake_leaf : cont.append(s_board)
                 else : self.leaf_nodes.append(s_board)
-        return cont
 
-    def prune_tree(self, new_board):
+        return cont
+        '''
+        #Vers 2
+        cur_queue = [self.root]
+        next_queue = [0]
+        layer = 1
+        cont = []
+        while layer < self.max_lyr and next_queue != [] :
+            next_queue = []
+            while cur_queue != [] :
+                s_board = cur_queue.pop(0)
+                node = self.nodes[s_board]
+                for kid in node.children :
+                    child = self.nodes[kid]
+                    if kid not in next_queue and kid != self.root and kid.score != None :
+                        print(kid in fin)
+                        self.nodes[kid].reset(self.root)
+                        next_queue.append(kid)
+                    self.nodes[kid].parent.append(s_board)
+                    
+                if node.children == [] :
+                    if s_board in self.fake_leaf : cont.append(s_board)
+                    else : self.leaf_nodes.append(s_board)
+            
+            layer += 1
+            cur_queue.extend(next_queue)
+        return cont
+        #'''
+
+    def prune_tree(self, new_board, plr):
         self.leaf_nodes = []
-        self.root = new_board
-        cont = self.reset_values()
-        plr = self.nodes[cont[0]].plr
+        self.root = self.list_to_str(new_board, plr)
+
+        if len(self.nodes) == 0 :
+            self.nodes[self.root] = TreeNode(None, plr, new_board)
+            self.nodes[self.root].score = 'root'
+            self.create_nodes([self.root], plr)
+            return
+
+        #print(new_board)
+        #print(self.fake_leaf)
+        #print(self.root in self.fake_leaf)
         self.nodes[self.root].score = 'root'
-        self.fake_leaf = []
-        self.create_nodes(cont, plr, self.max_lyr-1)
+
+        cont = self.reset_values()
+        #print(cont)
+        #self.nodes[self.root].score = 'root'
+        self.create_nodes(cont, plr, self.max_lyr-2)

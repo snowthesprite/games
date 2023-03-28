@@ -24,8 +24,8 @@ class Checkers :
 
 
     def set_player_numbers(self): 
-        self.players[0].set_player_number(1)
-        self.players[1].set_player_number(2)
+        self.players[0].set_player_info(1)
+        self.players[1].set_player_info(2)
 
     
     def determine_player_order(self):
@@ -145,7 +145,6 @@ class Checkers :
 
     def run_game(self) :
         plr_num = 1
-        turn = 0
         while self.winner == None :
             all_moves = self.get_all_moves(plr_num)
             if all_moves == [] :
@@ -157,8 +156,9 @@ class Checkers :
             move = self.players[plr_num-1].choose_move(self.board, all_moves)
             self.run_move(move, plr_num)
             plr_num = (plr_num % 2) + 1
-            turn += 1
-            if turn > 100 :
+            self.round += 1
+            print(self.round)
+            if self.round >= 100 :
                 self.winner = 'Tie'
 
     def crown(self, plr_num, end_coord) :
