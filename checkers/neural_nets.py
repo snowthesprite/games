@@ -103,6 +103,7 @@ class NeuralNetField ():
         self.curr_gen = []
         self.p1 = Player(self.net.nodes)
         self.p2 = Player(self.net.nodes)
+        self.pop = None
 
     def reproduce(self, parent, amount=1) :
         mutate = parent['mutate'] * math.exp(normal() / (2**(1/2) * self.num_weights ** (1/4)))
@@ -135,18 +136,19 @@ class NeuralNetField ():
 
     def evolve(self, gens, world) :
         generations = {}
+        half = int(self.pop/2)
         for gen in range(gens) :
             if gen % 1 == 0 :
                 print('Gen', gen)
                 #self.in_prog_graph(generations, world)
 
-            scores = [(id, self.calc_score(self.curr_gen[id])) for id in range(30)]
+            scores = [(id, self.calc_score(self.curr_gen[id])) for id in range(self.pop)]
             scores.sort(reverse=True, key=(lambda scr : scr[1]))
             
-            cont_pop = [self.curr_gen[net[0]] for net in scores[:15]]
+            cont_pop = [self.curr_gen[net[0]] for net in scores[:half]]
             new_pop = []
             id = 0
-            while len(new_pop + cont_pop) < len(self.curr_gen) :
+            while len(new_pop + cont_pop) < self.pop :
                 parent = cont_pop[id]
                 new_pop.append(self.reproduce(parent))
                 id = (id + 1) % len(cont_pop)
@@ -157,6 +159,7 @@ class NeuralNetField ():
 
     def create_gen(self, amount) :
         self.curr_gen = []
+        self.pop = amount
         for _ in range(amount) :
             net = {'weights': self.net.make_weights(), 'mutate': 0.05, 'K': 2}
             self.curr_gen.append(net)

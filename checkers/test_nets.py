@@ -11,7 +11,7 @@ node_layers = [32,40,10, 1]
 weights = 1742
 
 worlds = 5
-pop = 5
+pop = 4
 '''
 t1 = time.time()
 nn = NeuralNet(node_layers, lambda x: 2*x)
