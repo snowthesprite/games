@@ -25,4 +25,13 @@ print(t2-t1)
 nnf = NeuralNetField(node_layers, weights, lambda x: 1 / (1 + math.e ** (-x)))
 nnf.create_gen(pop)
 nnf.evolve(2,1)
+
+b=nnf.times['games']
+print('games', sum(b)/len(b))
+print('\n\n')
+print('p1')
+nnf.p1.print_times()
+print('\n\n')
+print('p2')
+nnf.p2.print_times()
 #'''

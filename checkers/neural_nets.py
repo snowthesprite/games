@@ -6,11 +6,11 @@ import math
 
 from tree_player import *
 from semi_int_plr import *
-from game_1 import *
+from game_2 import *
 
 import matplotlib.pyplot as plt
 plt.style.use('bmh')
-
+import time as t
 #'''
 ## Takes approximently 0.006 sec for generation
 class NetNode (): 
@@ -26,10 +26,18 @@ class NetNode ():
         return self.act_funct(self.value(weights, input))
     
     def input(self) :
+        self.act_funct = lambda x : x
         self.value = lambda weights, xs : xs[self.id-1]
 
     def piece_value(self) :
+        self.spec = 'piece'
+        self.act_funct = lambda x : x
         self.value = lambda weights, xs : sum([parent.value(weights, xs) for parent in self.parents])
+
+    def bias(self) :
+        self.spec = 'bias'
+        self.value = lambda weights, xs : 1
+        self.act_funct = lambda x : x
 
 class NeuralNet (): 
     def __init__(self, node_layers, act_funct) :
@@ -47,22 +55,21 @@ class NeuralNet ():
                 id += 1
                 new_node = NetNode(id, act_funct)
                 if node == 'bias' : 
-                    new_node.spec = 'bias'
-                    new_node.value = lambda weights, xs : 1
+                    new_node.bias()
                     self.nodes[layer].append(new_node)
                     continue
-                if layer == 0 :
+                elif layer == 0 :
                     new_node.input()
                     self.nodes[layer].append(new_node)
                     continue
 
                 new_node.parents = self.make_node_specifics(layer)
                 self.nodes[layer].append(new_node)
+
         #Makes piece Difference
         new_node = NetNode(id+1, act_funct)
         new_node.parents = self.make_node_specifics(1)
         new_node.piece_value()
-        new_node.spec = 'piece'
         self.nodes[len(layers)-1][0].parents.append(new_node)
         self.nodes[len(layers)-2].append(new_node)
 
@@ -101,9 +108,10 @@ class NeuralNetField ():
         self.num_weights = num_weights
         self.net = NeuralNet(layers, act_funct)
         self.curr_gen = []
-        self.p1 = Player(self.net.nodes)
-        self.p2 = Player(self.net.nodes)
-        self.pop = None
+        self.p1 = TreePlayerNet(Player(self.net.nodes),1)
+        self.p2 = TreePlayerNet(Player(self.net.nodes),2)
+        self.pop = 0
+        self.times = {'games':[]}
 
     def reproduce(self, parent, amount=1) :
         mutate = parent['mutate'] * math.exp(normal() / (2**(1/2) * self.num_weights ** (1/4)))
@@ -121,16 +129,18 @@ class NeuralNetField ():
     def calc_score(self, plr) :
         print('run')
         score = 0
-        self.p1.inst(plr)
+        self.p1.heurist.inst(plr)
         for _ in range(5) :
-            self.p2.inst(choice(self.curr_gen))
-            game = Checkers([TreePlayerNet(self.p1), TreePlayerNet(self.p2)])
+            t1 = t.time()
+            self.p2.heurist.inst(choice(self.curr_gen))
+            game = Checkers([self.p1, self.p2])
             game.run_game()
             if game.winner == 1 :
                 score += 1
             elif game.winner == 2 :
                 score -= 2
-            print(game.round)
+            t2 = t.time()
+            self.times['games'].append(t2-t1)
 
         return score
 
