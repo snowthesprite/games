@@ -152,11 +152,10 @@ class NeuralNetField ():
                 print('Gen', gen)
                 #self.in_prog_graph(generations, world)
 
-            #scores = [(id, self.calc_score(self.curr_gen[id])) for id in range(self.pop)]
-            #scores.sort(reverse=True, key=(lambda scr : scr[1]))
+            scores = [(id, self.calc_score(self.curr_gen[id])) for id in range(self.pop)]
+            scores.sort(reverse=True, key=(lambda scr : scr[1]))
             
-            #cont_pop = [self.curr_gen[net[0]] for net in scores[:half]]
-            cont_pop = self.curr_gen[:half]
+            cont_pop = [self.curr_gen[net[0]] for net in scores[:half]]
             new_pop = []
             id = 0
             while len(new_pop + cont_pop) < self.pop :

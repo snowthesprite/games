@@ -113,7 +113,10 @@ class CheckersTree:
         return pieces
 
     def get_all_moves(self, board, plr_num):
+        ##!!
         t1 = t.time()
+        ##!!
+
         pieces = self.get_pieces(board, plr_num)
         can_move = []
         for coord in pieces:
@@ -129,8 +132,12 @@ class CheckersTree:
                     if not any(victim in move[2] for victim in comb[1]):
                         can_move.append([move[0], (move[1][0]+comb[0][0], move[1][1]+comb[0][1]), move[2]+comb[1]])
             id += 1
+        
+        ##!!
         t2 = t.time()
         self.times['find moves'].append(t2-t1)
+        ##!!
+
         return can_move
 
  # ENDS FIND MOVES
@@ -164,7 +171,9 @@ class CheckersTree:
 
 # START EVERYTHING ELSE
     def create_nodes(self, plr, cur_lyr = 0) :
+        ##!!
         t1 = t.time()
+        ##!!
         cur_queue = [self.root]
         next_queue = [0]
         cur_plr = plr
@@ -184,12 +193,18 @@ class CheckersTree:
 
             if layer == self.max_lyr :
                 self.fake_leaf = next_queue
+
+        ##!!
         t2 = t.time()
         self.times['create nodes'].append(t2-t1)
+        ##!!
         
 
     def reset_children(self, s_board) :
+        ##!!
         t1 = t.time()
+        ##!!
+
         next_queue = []
         node = self.nodes[s_board]
         for kid in node.children :
@@ -198,21 +213,30 @@ class CheckersTree:
                 child.reset()
                 next_queue.append(kid)
             child.parent.add(s_board)
+        
+        ##!!
         t2 = t.time()
         self.times['reset children'].append(t2-t1)
+        ##!!
+
         return next_queue
 
     def create_children(self, s_board, cur_plr) :
+        ##!!
         t1 = t.time()
+        ##!!
         next_queue = []
         l_board = self.nodes[s_board].board
         possible_choices = self.get_all_moves(l_board, cur_plr)
         if possible_choices == [] :
             self.leaf_nodes.append(s_board)
             self.nodes[s_board].assign_winner()
-            #print('nonempty')
+
+            ##!!
             t2 = t.time()
             self.times['create kids'].append(t2-t1)
+            ##!!
+
             return next_queue
 
         update = [self.run_move(choice, l_board) for choice in possible_choices]
@@ -229,14 +253,19 @@ class CheckersTree:
                 next_queue.append(s_move)
                 self.nodes[s_move] = TreeNode(
                     s_board, (cur_plr % 2) + 1, move)
+
+        ##!!
         t2 = t.time()
         self.times['create kids'].append(t2-t1)
+        ##!!
+
         if need_reset :
             next_queue = self.reset_children(s_board)
         return next_queue
 
     def assign_values(self) :
         t1 = t.time()
+
         unassigned = self.leaf_nodes + self.fake_leaf
         index = 0
 
@@ -260,8 +289,11 @@ class CheckersTree:
             else:
                 node.score = min(child_scores)
             unassigned.pop(index)
+
+        ##!!
         t2 = t.time()
         self.times['assign values'].append(t2-t1)
+        ##!!
 
     def find_score(self, node) :
         if node.winner != None :
@@ -294,20 +326,17 @@ class CheckersTree:
                 queue.extend(node.children)
             queue.pop(0)
 
-    def prune_tree(self, new_board, plr):
+    def prune_tree(self, new_board, plr) :
+        ##!!
         t1 = t.time()
+        ##!!
+
         self.leaf_nodes = []
         self.root = self.list_to_str(new_board, plr)
-
-        #if len(self.nodes) == 0 :
-        #    self.nodes[self.root] = TreeNode(None, plr, new_board)
-            #self.nodes[self.root].score = 'root'
-            #self.create_nodes([self.root], plr)
-            #return
-        
-        #print(self.root)
         self.nodes[self.root].score = 'root'
         self.create_nodes(plr)
+
+        ##!!
         t2 = t.time()
         self.times['prune tree'].append(t2-t1)
-        #'''
+        ##!!
