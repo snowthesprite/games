@@ -25,11 +25,19 @@ class TreePlayerNet :
     def choose_move(self, board, choices) :
         self.tree.prune_tree(board, self.num)
         self.tree.assign_values()
+        #self.tree.check_scores()
         best = (None, -1)
         for choice in choices :
             update = self.tree.run_move(choice, board)
             update = self.tree.list_to_str(update, (self.num)%2+1)
             mm = self.tree.nodes[update]
+            if type(mm.score) == str :
+                print('is child of cur board', update in self.tree.nodes[self.tree.list_to_str(board, self.num)].children)
+                print('Children are terminal', [child in self.tree.fake_leaf for child in mm.children], [child in self.tree.leaf_nodes for child in mm.children])
+                print('is parent of children', [update in self.tree.nodes[child] for child in mm.children])
+                print('parent scores are', [self.tree.nodes[parent].score for parent in mm.parent])
+                print('child scores are', [self.tree.nodes[child].score for child in mm.children])
+
             if self.tree.nodes[update].score >= best[1] :
                 best = (choice, self.tree.nodes[update].score)
         return best[0]

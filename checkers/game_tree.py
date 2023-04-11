@@ -216,6 +216,7 @@ class CheckersTree:
             return next_queue
 
         update = [self.run_move(choice, l_board) for choice in possible_choices]
+        need_reset = False
 
         for move in update :
             s_move = self.list_to_str(move, (cur_plr%2)+1)
@@ -223,12 +224,15 @@ class CheckersTree:
 
             if s_move in self.nodes :
                 self.nodes[s_move].parent.add(s_board)
+                need_reset = True
             else :
                 next_queue.append(s_move)
                 self.nodes[s_move] = TreeNode(
                     s_board, (cur_plr % 2) + 1, move)
         t2 = t.time()
         self.times['create kids'].append(t2-t1)
+        if need_reset :
+            next_queue = self.reset_children(s_board)
         return next_queue
 
     def assign_values(self) :
@@ -245,7 +249,7 @@ class CheckersTree:
                 [parent for parent in node.parent if self.nodes[parent].score != 'root' and parent not in unassigned])
 
             child_scores = [self.nodes[child].score for child in node.children if self.nodes[child].score != 'root']
-            if None in child_scores :
+            if None in child_scores or 'unset' in child_scores :
                 index += 1
                 continue
 
@@ -286,7 +290,8 @@ class CheckersTree:
                 print(node.parent)
                 print([self.nodes[parent].score for parent in node.parent])
                 print('\n\n\n')
-            queue.extend(node.children)
+            if queue[0] not in self.fake_leaf and queue[0] != self.root :
+                queue.extend(node.children)
             queue.pop(0)
 
     def prune_tree(self, new_board, plr):
@@ -294,8 +299,8 @@ class CheckersTree:
         self.leaf_nodes = []
         self.root = self.list_to_str(new_board, plr)
 
-        if len(self.nodes) == 0 :
-            self.nodes[self.root] = TreeNode(None, plr, new_board)
+        #if len(self.nodes) == 0 :
+        #    self.nodes[self.root] = TreeNode(None, plr, new_board)
             #self.nodes[self.root].score = 'root'
             #self.create_nodes([self.root], plr)
             #return

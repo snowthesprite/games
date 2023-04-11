@@ -122,7 +122,7 @@ class NeuralNetField ():
             k = 3
 
         child = {'weights': {}, 'mutate': mutate, 'K': k}
-        for (connect, weight) in parent.weights.items() :
+        for (connect, weight) in parent['weights'].items() :
             child['weights'][connect] = weight + mutate * normal()
         return child
 
@@ -130,7 +130,7 @@ class NeuralNetField ():
         print('run')
         score = 0
         self.p1.heurist.inst(plr)
-        for _ in range(5) :
+        for _ in range(2) :
             t1 = t.time()
             self.p2.heurist.inst(choice(self.curr_gen))
             game = Checkers([self.p1, self.p2])
@@ -152,10 +152,11 @@ class NeuralNetField ():
                 print('Gen', gen)
                 #self.in_prog_graph(generations, world)
 
-            scores = [(id, self.calc_score(self.curr_gen[id])) for id in range(self.pop)]
-            scores.sort(reverse=True, key=(lambda scr : scr[1]))
+            #scores = [(id, self.calc_score(self.curr_gen[id])) for id in range(self.pop)]
+            #scores.sort(reverse=True, key=(lambda scr : scr[1]))
             
-            cont_pop = [self.curr_gen[net[0]] for net in scores[:half]]
+            #cont_pop = [self.curr_gen[net[0]] for net in scores[:half]]
+            cont_pop = self.curr_gen[:half]
             new_pop = []
             id = 0
             while len(new_pop + cont_pop) < self.pop :

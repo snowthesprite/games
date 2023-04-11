@@ -4,7 +4,10 @@ import time
 import matplotlib.pyplot as plt
 import pickle
 import random
-random.seed(10)
+import numpy.random
+
+#numpy.random.seed(10)
+#random.seed(101)
 
 node_layers = [32,40,10, 1]
 
