@@ -6,12 +6,13 @@ import pickle
 import random
 import numpy.random
 
+## At 2 Ply:
 ## Games: 224.23 sec
 ## Hurst: 0.06 sec
 ## Reset Kids: 2.37E^-5 sec
 ## Create kids: 0.0006 sec
 ## Prune Tree" 0.0038 sec
-## Assign Values: 2.53 sec
+## Assign Values: 2.53 sec / With Shared Tree: 3.0 (Less amount run)
 ## Find moves: 0.0002 sec
 ## Create Nodes: 0.004 sec
 
@@ -23,7 +24,7 @@ node_layers = [32,40,10, 1]
 weights = 1742
 
 worlds = 5
-pop = 4
+pop = 2
 '''
 t1 = time.time()
 nn = NeuralNet(node_layers, lambda x: 2*x)

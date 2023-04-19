@@ -263,7 +263,7 @@ class CheckersTree:
             next_queue = self.reset_children(s_board)
         return next_queue
 
-    def assign_values(self) :
+    def assign_values(self, max_plr, heuristic) :
         t1 = t.time()
 
         unassigned = self.leaf_nodes + self.fake_leaf
@@ -283,8 +283,8 @@ class CheckersTree:
                 continue
 
             if child_scores == [] :
-                self.find_score(node)
-            elif node.plr == self.max_plr:
+                self.find_score(node, max_plr, heuristic)
+            elif node.plr == max_plr:
                 node.score = max(child_scores)
             else:
                 node.score = min(child_scores)
@@ -295,17 +295,17 @@ class CheckersTree:
         self.times['assign values'].append(t2-t1)
         ##!!
 
-    def find_score(self, node) :
+    def find_score(self, node, max_plr, heuristic) :
         if node.winner != None :
             if node.winner == 'Tie' :
                 node.score = 0
-            elif node.winner == self.max_plr :
+            elif node.winner == max_plr :
                 node.score = 1
             else:
                 node.score = -1
             return
 
-        node.score = self.heuristic(node.board)
+        node.score = heuristic(node.board)
 
     def check_scores(self) :
         queue = [self.root]

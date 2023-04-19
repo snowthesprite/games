@@ -108,10 +108,12 @@ class NeuralNetField ():
         self.num_weights = num_weights
         self.net = NeuralNet(layers, act_funct)
         self.curr_gen = []
-        self.p1 = TreePlayerNet(Player(self.net.nodes),1)
-        self.p2 = TreePlayerNet(Player(self.net.nodes),2)
         self.pop = 0
         self.times = {'games':[]}
+
+        tree = CheckersTree(1, 2,None)#self.layers, self.heuristic)
+        self.p1 = TreePlayerNet(Player(self.net.nodes),1, tree)
+        self.p2 = TreePlayerNet(Player(self.net.nodes),2,tree)
 
     def reproduce(self, parent, amount=1) :
         mutate = parent['mutate'] * math.exp(normal() / (2**(1/2) * self.num_weights ** (1/4)))
@@ -130,7 +132,7 @@ class NeuralNetField ():
         print('run')
         score = 0
         self.p1.heurist.inst(plr)
-        for _ in range(2) :
+        for _ in range(1) :
             t1 = t.time()
             self.p2.heurist.inst(choice(self.curr_gen))
             game = Checkers([self.p1, self.p2])
@@ -144,19 +146,39 @@ class NeuralNetField ():
 
         return score
 
+    def calc_graph_score(self, plr) :
+        score = 0
+        self.p1.heurist.inst(plr)
+        for _ in range(2) : 
+            game = Checkers([self.p1, SemiIntPlr(2)])
+            game.run_game()
+            if game.winner == 1 :
+                score += 1
+            elif game.winner == 2 :
+                score -= 2
+        return score
+
     def evolve(self, gens, world) :
         generations = {}
         half = int(self.pop/2)
         for gen in range(gens) :
-            if gen % 1 == 0 :
-                print('Gen', gen)
-                #self.in_prog_graph(generations, world)
-
             scores = [(id, self.calc_score(self.curr_gen[id])) for id in range(self.pop)]
             scores.sort(reverse=True, key=(lambda scr : scr[1]))
             
             cont_pop = [self.curr_gen[net[0]] for net in scores[:half]]
             new_pop = []
+            ##!?! Every generation run the semi intelegent player against the entire cont pop. Graph the average score.
+            ##!?! THere are small changes, try making both players run on one tree.
+            if gen % 1 == 0 :
+                print('Gen', gen)
+                '''
+                gen_scores = []
+                for parents in cont_pop :
+                    gen_scores = [self.calc_graph_scores]
+                '''
+
+                #self.in_prog_graph(generations, world)
+
             id = 0
             while len(new_pop + cont_pop) < self.pop :
                 parent = cont_pop[id]
