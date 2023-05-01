@@ -1,7 +1,7 @@
-from game_1 import Checkers
+from game_2 import Checkers
 from input_plr import *
 from rand_plr import *
-
+import time
 '''
 results = {1: 0, 2: 0, 'Tie': 0}
 
@@ -31,11 +31,15 @@ print('Percentage of Cats Games:', results['Tie']/tests)
 #print(chr(0+97) + 'a')
 
 #'''
-players = [InputPlayer(), RandPlr()]
-#players = [RandPlr(), RandPlr()]
+#players = [InputPlayer(), RandPlr()]
+t1 = time.time()
+players = [RandPlr(), RandPlr()]
 game = Checkers(players)
-print(game.board)
+#print(game.board)
 game.run_game()
+t2 = time.time()
+
+print(t2-t1)
 '''
 for _ in range(100) :
     players = [RandPlr(), RandPlr()]

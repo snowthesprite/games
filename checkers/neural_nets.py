@@ -19,11 +19,14 @@ class NetNode ():
         self.spec = None
         self.id = id
         self.parents = []
+        self.saved = None
         self.act_funct = act_funct
         self.value = lambda weights, xs : sum([weights[(parent.id, self.id)] * parent.output(weights,xs) for parent in self.parents])
     
     def output(self, weights, input) :
-        return self.act_funct(self.value(weights, input))
+        if self.saved == None :
+            self.saved = self.act_funct(self.value(weights, input))
+        return self.saved
     
     def input(self) :
         self.act_funct = lambda x : x
@@ -32,7 +35,7 @@ class NetNode ():
     def piece_value(self) :
         self.spec = 'piece'
         self.act_funct = lambda x : x
-        self.value = lambda weights, xs : sum([parent.value(weights, xs) for parent in self.parents])
+        self.value = lambda weights, xs : sum([parent.output(weights, xs) for parent in self.parents])
 
     def bias(self) :
         self.spec = 'bias'
@@ -98,7 +101,7 @@ class NeuralNet ():
             if node_to.spec == 'piece' :
                 continue
             for node_from in node_to.parents :
-                weights[(node_from.id, node_to.id)] = uniform(-0.2, 0.2)
+                weights[(node_from.id, node_to.id)] = 0.1#uniform(-0.2, 0.2)
             queue.extend([node for node in node_to.parents if node not in queue])
         return weights
 
@@ -111,7 +114,7 @@ class NeuralNetField ():
         self.pop = 0
         self.times = {'games':[]}
 
-        tree = CheckersTree(1, 2,None)#self.layers, self.heuristic)
+        tree = CheckersTree(2)
         self.p1 = TreePlayerNet(Player(self.net.nodes),1, tree)
         self.p2 = TreePlayerNet(Player(self.net.nodes),2,tree)
 
@@ -129,10 +132,10 @@ class NeuralNetField ():
         return child
 
     def calc_score(self, plr) :
-        print('run')
+        #print('run')
         score = 0
         self.p1.heurist.inst(plr)
-        for _ in range(1) :
+        for _ in range(5) :
             t1 = t.time()
             self.p2.heurist.inst(choice(self.curr_gen))
             game = Checkers([self.p1, self.p2])
@@ -143,6 +146,7 @@ class NeuralNetField ():
                 score -= 2
             t2 = t.time()
             self.times['games'].append(t2-t1)
+            print(game.winner)#'games', t2-t1)
 
         return score
 
@@ -170,7 +174,7 @@ class NeuralNetField ():
             ##!?! Every generation run the semi intelegent player against the entire cont pop. Graph the average score.
             ##!?! THere are small changes, try making both players run on one tree.
             if gen % 1 == 0 :
-                print('Gen', gen)
+                #print('Gen', gen)
                 '''
                 gen_scores = []
                 for parents in cont_pop :
@@ -185,7 +189,7 @@ class NeuralNetField ():
                 new_pop.append(self.reproduce(parent))
                 id = (id + 1) % len(cont_pop)
             self.curr_gen = cont_pop + new_pop
-            print()
+            #print()
             
         return generations
 
@@ -218,11 +222,29 @@ class Player ():
         self.k = net_dict['K']
     
     def find_value(self, board) :
+        #'''
         v_board = self.vector_board(board)
+        output_node = self.nodes[len(self.nodes)-1][0]
+        #output_node = output_node[0]
+        val = output_node.output(self.weights, v_board)
+        self.reset_nodes()
+        '''
+        v_board = self.vector_board(board)
+        for id in range(4) :
+            for node in self.nodes[id] :
+                node.output(self.weights, v_board)
         output_node = self.nodes[len(self.nodes)-1]
         output_node = output_node[0]
         val = output_node.output(self.weights, v_board)
-        return val
+        self.reset_nodes()
+        #'''
+
+        return val#uniform(1,-1)
+    
+    def reset_nodes(self) :
+        for (id, layer) in self.nodes.items() :
+            for node in layer :
+                node.saved = None
 
     def vector_board(self, board) :
         v_board = []

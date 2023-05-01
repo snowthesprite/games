@@ -24,21 +24,19 @@ class CheckersTree:
     #start = ''.join([''.join([str((i+j) % 2 * ((3 - (j < 3)-2*(j > 4)) % 3)) for i in range(8)]) for j in range(8)])
     #start = [[(i+j)%2 * ((3 - (j<3)-2*(j>4))%3) for i in range(8)] for j in range(8)]
 
-    def __init__(self, max_plr, num_layers, heuristic_funct):
+    def __init__(self, num_layers):
         start = [[(i+j)%2 * ((3 - (j<3)-2*(j>4))%3) for i in range(8)] for j in range(8)]
-        self.times = {'reset children':[], 'create kids':[], 'prune tree':[], 'assign values':[]
-                      ,'find moves': [], 'create nodes':[]}
+        self.times = {'reset children':[], 'create kids':[], 'prune tree':[0], 'assign values':[]
+                      ,'find moves': [], 'create nodes':[], 'num heurst Called':[]}
 
         self.max_lyr = num_layers
-        self.heuristic = heuristic_funct
-        self.max_plr = max_plr
 
         self.leaf_nodes = []
         self.fake_leaf = []
 
         self.root = self.list_to_str(start, 1)
         self.nodes = {self.root: TreeNode(None, 1, start)}
-        self.nodes[self.root].parent = set([])
+        self.nodes[self.root].parent = []##!!set([])
         self.nodes[self.root].score = 'root'
         self.create_nodes(1, self.max_lyr-2)
 
@@ -186,6 +184,8 @@ class CheckersTree:
                 if node.children != [] :
                     next_queue.extend(self.reset_children(s_board))
                 else : next_queue.extend(self.create_children(s_board, cur_plr))
+                if len(node.parent) != len(set(node.parent)) :
+                    print('theres a duplicate')
 
             cur_queue.extend(next_queue)
             layer += 1
@@ -254,13 +254,14 @@ class CheckersTree:
                 self.nodes[s_move] = TreeNode(
                     s_board, (cur_plr % 2) + 1, move)
 
+        if need_reset :
+            next_queue = self.reset_children(s_board)
+
         ##!!
         t2 = t.time()
         self.times['create kids'].append(t2-t1)
         ##!!
 
-        if need_reset :
-            next_queue = self.reset_children(s_board)
         return next_queue
 
     def assign_values(self, max_plr, heuristic) :
@@ -268,9 +269,10 @@ class CheckersTree:
 
         unassigned = self.leaf_nodes + self.fake_leaf
         index = 0
+        assi = 0
 
         while len(unassigned) >= 1:
-            if index == len(unassigned) and unassigned != []:
+            if index >= len(unassigned) :# and unassigned != []:
                 index = 0
 
             node = self.nodes[unassigned[index]]
@@ -279,11 +281,12 @@ class CheckersTree:
 
             child_scores = [self.nodes[child].score for child in node.children if self.nodes[child].score != 'root']
             if None in child_scores or 'unset' in child_scores :
+                print('happended')
                 index += 1
                 continue
 
             if child_scores == [] :
-                self.find_score(node, max_plr, heuristic)
+                assi += self.find_score(node, max_plr, heuristic)
             elif node.plr == max_plr:
                 node.score = max(child_scores)
             else:
@@ -292,7 +295,9 @@ class CheckersTree:
 
         ##!!
         t2 = t.time()
+        #print('av', t2-t1)
         self.times['assign values'].append(t2-t1)
+        self.times['num heurst Called'].append(assi)
         ##!!
 
     def find_score(self, node, max_plr, heuristic) :
@@ -303,9 +308,10 @@ class CheckersTree:
                 node.score = 1
             else:
                 node.score = -1
-            return
+            return 0
 
         node.score = heuristic(node.board)
+        return 1
 
     def check_scores(self) :
         queue = [self.root]
@@ -327,16 +333,9 @@ class CheckersTree:
             queue.pop(0)
 
     def prune_tree(self, new_board, plr) :
-        ##!!
-        t1 = t.time()
-        ##!!
+        self.nodes[self.root].score = 0
 
         self.leaf_nodes = []
         self.root = self.list_to_str(new_board, plr)
         self.nodes[self.root].score = 'root'
         self.create_nodes(plr)
-
-        ##!!
-        t2 = t.time()
-        self.times['prune tree'].append(t2-t1)
-        ##!!

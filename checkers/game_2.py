@@ -157,7 +157,7 @@ class Checkers :
             plr_num = (plr_num % 2) + 1
             self.round += 1
             if self.round % 10 == 0 :
-                print(self.round)
+                pass#print(self.round)
 
             if self.round >= 100 :
                 self.winner = 'Tie'
