@@ -1,10 +1,12 @@
 ##For specifically Checkers
+## python checkers/test_nets.py -> output.txt
 
 from random import choice
-from numpy.random import normal, uniform, randint
+from numpy.random import normal, uniform
 import math
 
-from tree_player import *
+#from tree_player import *
+from left_tree_plr import *
 from semi_int_plr import *
 from game_2 import *
 
@@ -131,11 +133,12 @@ class NeuralNetField ():
             child['weights'][connect] = weight + mutate * normal()
         return child
 
-    def calc_score(self, plr) :
+    def calc_score(self, plr,id) :
         #print('run')
         score = 0
+        #gen_not = self.curr_gen[:id] + self.curr_gen[id:]
         self.p1.heurist.inst(plr)
-        for _ in range(5) :
+        for _ in range(1) :
             t1 = t.time()
             self.p2.heurist.inst(choice(self.curr_gen))
             game = Checkers([self.p1, self.p2])
@@ -146,7 +149,7 @@ class NeuralNetField ():
                 score -= 2
             t2 = t.time()
             self.times['games'].append(t2-t1)
-            print(game.winner)#'games', t2-t1)
+            print('winner', game.winner)#'games', t2-t1)
 
         return score
 
@@ -166,7 +169,7 @@ class NeuralNetField ():
         generations = {}
         half = int(self.pop/2)
         for gen in range(gens) :
-            scores = [(id, self.calc_score(self.curr_gen[id])) for id in range(self.pop)]
+            scores = [(id, self.calc_score(self.curr_gen[id],id)) for id in range(self.pop)]
             scores.sort(reverse=True, key=(lambda scr : scr[1]))
             
             cont_pop = [self.curr_gen[net[0]] for net in scores[:half]]

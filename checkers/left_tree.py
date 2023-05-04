@@ -21,9 +21,7 @@ class TreeNode:
 
 
 class CheckersTree:
-    #start = ''.join([''.join([str((i+j) % 2 * ((3 - (j < 3)-2*(j > 4)) % 3)) for i in range(8)]) for j in range(8)])
-    #start = [[(i+j)%2 * ((3 - (j<3)-2*(j>4))%3) for i in range(8)] for j in range(8)]
-
+    
     def __init__(self, num_layers):
         start = [[(i+j)%2 * ((3 - (j<3)-2*(j>4))%3) for i in range(8)] for j in range(8)]
         self.times = {'reset children':[], 'create kids':[], 'assign values':[]
@@ -136,8 +134,16 @@ class CheckersTree:
         t2 = t.time()
         self.times['find moves'].append(t2-t1)
         ##!!
+        can_move = self.order_left(can_move)
 
         return can_move
+
+    def order_left(self, all_moves) :
+        LeftMostPiece = all_moves.sort(key =lambda move : move[0][1])
+        LeftMostMove = all_moves.sort(key =lambda move : move[1][1])
+        TopMostPiece = all_moves.sort(key =lambda move : move[0][0])
+        TopMostMove = all_moves.sort(key =lambda move : move[1][0])
+        return all_moves
 
  # ENDS FIND MOVES
 
@@ -268,7 +274,7 @@ class CheckersTree:
         assi = 0
 
         while len(unassigned) >= 1:
-            if index >= len(unassigned) :# and unassigned != []:
+            if index >= len(unassigned) :
                 index = 0
 
             node = self.nodes[unassigned[index]]
@@ -308,25 +314,6 @@ class CheckersTree:
 
         node.score = heuristic(node.board)
         return 1
-
-    def check_scores(self) :
-        queue = [self.root]
-        while queue != [] :
-            node = self.nodes[queue[0]]
-            if node.score == None :
-                print('This node has no score')
-                print(queue[0])
-                print('This nodes children are')
-                print(node.children)
-                print([self.nodes[child].score for child in node.children])
-                print()
-                print('this nodes parents are')
-                print(node.parent)
-                print([self.nodes[parent].score for parent in node.parent])
-                print('\n\n\n')
-            if queue[0] not in self.fake_leaf and queue[0] != self.root :
-                queue.extend(node.children)
-            queue.pop(0)
 
     def prune_tree(self, new_board, plr) :
         self.nodes[self.root].score = 0

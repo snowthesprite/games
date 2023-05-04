@@ -19,7 +19,7 @@ import numpy.random
 ## Create Nodes: 0.002 sec
 
 numpy.random.seed(10)
-random.seed(101)
+random.seed(10)
 
 node_layers = [32,40,10, 1]
 
@@ -39,7 +39,8 @@ print(t2-t1)
 
 nnf = NeuralNetField(node_layers, weights, lambda x: math.tanh(x))
 nnf.create_gen(pop)
-nnf.evolve(1,1)
+#nnf.evolve(2,1)
+nnf.calc_score(nnf.curr_gen[0],0)
 
 b=nnf.times['games']
 print('games', sum(b)/len(b))
