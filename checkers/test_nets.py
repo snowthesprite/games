@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import pickle
 import random
 import numpy.random
+## python checkers/test_nets.py -> output.txt
 
 ## Game runs much slower in debug mode
 
@@ -39,8 +40,8 @@ print(t2-t1)
 
 nnf = NeuralNetField(node_layers, weights, lambda x: math.tanh(x))
 nnf.create_gen(pop)
-#nnf.evolve(2,1)
-nnf.calc_score(nnf.curr_gen[0],0)
+nnf.evolve(2,1)
+#nnf.calc_score(nnf.curr_gen[0],0)z
 
 b=nnf.times['games']
 print('games', sum(b)/len(b))

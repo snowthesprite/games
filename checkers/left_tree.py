@@ -8,7 +8,7 @@ class TreeNode:
         self.children = []
         self.plr = player
         self.parent = set([parent])
-        self.score = 'unset'
+        self.score = None
         self.board = game_state
         self.winner = None
 
@@ -243,7 +243,6 @@ class CheckersTree:
             return next_queue
 
         update = [self.run_move(choice, l_board) for choice in possible_choices]
-        need_reset = False
 
         for move in update :
             s_move = self.list_to_str(move, (cur_plr%2)+1)
@@ -279,11 +278,12 @@ class CheckersTree:
 
             node = self.nodes[unassigned[index]]
             unassigned.extend(
-                [parent for parent in node.parent if self.nodes[parent].score != 'root' and parent not in unassigned])
+                #[parent for parent in node.parent if self.nodes[parent].score != 'root' and parent not in unassigned])
+                [parent for parent in node.parent if parent != self.root and parent not in unassigned])
 
-            child_scores = [self.nodes[child].score for child in node.children if self.nodes[child].score != 'root']
-            if None in child_scores or 'unset' in child_scores :
-                print('happended')
+            #child_scores = [self.nodes[child].score for child in node.children if self.nodes[child].score != 'root']
+            child_scores = [self.nodes[child].score for child in node.children if child != self.root]
+            if None in child_scores :
                 index += 1
                 continue
 
@@ -321,4 +321,6 @@ class CheckersTree:
         self.leaf_nodes = []
         self.root = self.list_to_str(new_board, plr)
         self.nodes[self.root].score = 'root'
+        self.nodes[self.root].parent = set([])
+        
         self.create_nodes(plr)

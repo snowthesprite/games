@@ -1,12 +1,11 @@
 ##For specifically Checkers
-## python checkers/test_nets.py -> output.txt
 
 from random import choice
 from numpy.random import normal, uniform
 import math
 
-#from tree_player import *
-from left_tree_plr import *
+from tree_player import *
+#from left_tree_plr import *
 from semi_int_plr import *
 from game_2 import *
 
@@ -117,6 +116,8 @@ class NeuralNetField ():
         self.times = {'games':[]}
 
         tree = CheckersTree(2)
+        for id in tree.nodes :
+            tree.nodes[id].score = 'unset'
         self.p1 = TreePlayerNet(Player(self.net.nodes),1, tree)
         self.p2 = TreePlayerNet(Player(self.net.nodes),2,tree)
 
@@ -136,11 +137,12 @@ class NeuralNetField ():
     def calc_score(self, plr,id) :
         #print('run')
         score = 0
-        #gen_not = self.curr_gen[:id] + self.curr_gen[id:]
+        gen_not = self.curr_gen[:id] + self.curr_gen[id:]
         self.p1.heurist.inst(plr)
-        for _ in range(1) :
+        for _ in range(5) :
             t1 = t.time()
-            self.p2.heurist.inst(choice(self.curr_gen))
+            p2 = choice(gen_not)
+            self.p2.heurist.inst(p2)
             game = Checkers([self.p1, self.p2])
             game.run_game()
             if game.winner == 1 :
@@ -169,15 +171,14 @@ class NeuralNetField ():
         generations = {}
         half = int(self.pop/2)
         for gen in range(gens) :
+            print('Gen', gen)
             scores = [(id, self.calc_score(self.curr_gen[id],id)) for id in range(self.pop)]
             scores.sort(reverse=True, key=(lambda scr : scr[1]))
             
             cont_pop = [self.curr_gen[net[0]] for net in scores[:half]]
             new_pop = []
             ##!?! Every generation run the semi intelegent player against the entire cont pop. Graph the average score.
-            ##!?! THere are small changes, try making both players run on one tree.
             if gen % 1 == 0 :
-                #print('Gen', gen)
                 '''
                 gen_scores = []
                 for parents in cont_pop :
@@ -225,12 +226,13 @@ class Player ():
         self.k = net_dict['K']
     
     def find_value(self, board) :
-        #'''
+        '''
         v_board = self.vector_board(board)
         output_node = self.nodes[len(self.nodes)-1][0]
         #output_node = output_node[0]
         val = output_node.output(self.weights, v_board)
         self.reset_nodes()
+        #'''
         '''
         v_board = self.vector_board(board)
         for id in range(4) :
@@ -242,7 +244,7 @@ class Player ():
         self.reset_nodes()
         #'''
 
-        return val#uniform(1,-1)
+        return 0.1 #uniform(1,-1)
     
     def reset_nodes(self) :
         for (id, layer) in self.nodes.items() :

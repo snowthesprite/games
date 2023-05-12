@@ -43,10 +43,11 @@ class TreePlayerNet :
         for choice in choices :
             update = self.tree.run_move(choice, board)
             update = self.tree.list_to_str(update, (self.num)%2+1)
+            ud = self.tree.nodes[update]
             if update not in ROOT_CHILDREN :
                 print('Error')
-            if self.tree.nodes[update].score > best[1] :
-                best = (choice, self.tree.nodes[update].score)
+            if ud.score > best[1] :
+                best = (choice, ud.score)
         #'''
         return best[0]
 

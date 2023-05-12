@@ -144,6 +144,8 @@ class Checkers :
     def run_game(self) :
         plr_num = 1
         while self.winner == None :
+            #if self.round % 1 == 0 :
+                #print(self.round)
             all_moves = self.get_all_moves(plr_num)
             if all_moves == [] :
                 self.winner = (plr_num % 2) + 1
@@ -153,12 +155,10 @@ class Checkers :
             self.run_move(move, plr_num)
             plr_num = (plr_num % 2) + 1
             self.round += 1
-            if self.round % 10 == 0 :
-                pass  # print(self.round)
 
-            if self.round >= 100 :
+            if self.round >= 200 :
                 self.winner = 'Tie'
-            # self.print_board()
+            #self.print_board()
 
         # print(row_string, '\n')
         print('moves:', self.round)

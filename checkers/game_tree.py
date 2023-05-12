@@ -8,7 +8,7 @@ class TreeNode:
         self.children = []
         self.plr = player
         self.parent = set([parent])
-        self.score = 'unset'
+        self.score = None
         self.board = game_state
         self.winner = None
 
@@ -21,9 +21,7 @@ class TreeNode:
 
 
 class CheckersTree:
-    #start = ''.join([''.join([str((i+j) % 2 * ((3 - (j < 3)-2*(j > 4)) % 3)) for i in range(8)]) for j in range(8)])
-    #start = [[(i+j)%2 * ((3 - (j<3)-2*(j>4))%3) for i in range(8)] for j in range(8)]
-
+    
     def __init__(self, num_layers):
         start = [[(i+j)%2 * ((3 - (j<3)-2*(j>4))%3) for i in range(8)] for j in range(8)]
         self.times = {'reset children':[], 'create kids':[], 'assign values':[]
@@ -237,7 +235,6 @@ class CheckersTree:
             return next_queue
 
         update = [self.run_move(choice, l_board) for choice in possible_choices]
-        need_reset = False
 
         for move in update :
             s_move = self.list_to_str(move, (cur_plr%2)+1)
@@ -268,16 +265,17 @@ class CheckersTree:
         assi = 0
 
         while len(unassigned) >= 1:
-            if index >= len(unassigned) :# and unassigned != []:
+            if index >= len(unassigned) :
                 index = 0
 
             node = self.nodes[unassigned[index]]
             unassigned.extend(
-                [parent for parent in node.parent if self.nodes[parent].score != 'root' and parent not in unassigned])
+                #[parent for parent in node.parent if self.nodes[parent].score != 'root' and parent not in unassigned])
+                [parent for parent in node.parent if parent != self.root and parent not in unassigned])
 
-            child_scores = [self.nodes[child].score for child in node.children if self.nodes[child].score != 'root']
-            if None in child_scores or 'unset' in child_scores :
-                print('happended')
+            #child_scores = [self.nodes[child].score for child in node.children if self.nodes[child].score != 'root']
+            child_scores = [self.nodes[child].score for child in node.children if child != self.root]
+            if None in child_scores :
                 index += 1
                 continue
 
@@ -309,29 +307,12 @@ class CheckersTree:
         node.score = heuristic(node.board)
         return 1
 
-    def check_scores(self) :
-        queue = [self.root]
-        while queue != [] :
-            node = self.nodes[queue[0]]
-            if node.score == None :
-                print('This node has no score')
-                print(queue[0])
-                print('This nodes children are')
-                print(node.children)
-                print([self.nodes[child].score for child in node.children])
-                print()
-                print('this nodes parents are')
-                print(node.parent)
-                print([self.nodes[parent].score for parent in node.parent])
-                print('\n\n\n')
-            if queue[0] not in self.fake_leaf and queue[0] != self.root :
-                queue.extend(node.children)
-            queue.pop(0)
-
     def prune_tree(self, new_board, plr) :
         self.nodes[self.root].score = 0
 
         self.leaf_nodes = []
         self.root = self.list_to_str(new_board, plr)
         self.nodes[self.root].score = 'root'
+        self.nodes[self.root].parent = set([])
+        
         self.create_nodes(plr)
