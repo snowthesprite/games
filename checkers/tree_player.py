@@ -26,13 +26,38 @@ class TreePlayerNet :
         self.tree.prune_tree(board, self.num)
         self.tree.assign_values(self.num, self.heuristic)
 
-        best = (None, -1)
+        #'''
+        best = (None, -10)
         for choice in choices :
             update = self.tree.run_move(choice, board)
             update = self.tree.list_to_str(update, (self.num)%2+1)
             if self.tree.nodes[update].score >= best[1] :
                 best = (choice, self.tree.nodes[update].score)
         return best[0]
+        '''
+        best = -10
+        all_scores = []
+        choicess = self.order_left(choices)
+        for choice in choicess :
+            update = self.tree.run_move(choice, board)
+            update = self.tree.list_to_str(update, (self.num)%2+1)
+            all_scores.append(self.tree.nodes[update].score)
+            cur_node = self.tree.nodes[update]
+            if cur_node.score > best :
+                best_choices = [choice]
+                best = cur_node.score
+            elif cur_node.score == best :
+                best_choices.append(choice)
+        ordered_best = self.order_left(best_choices)
+        return ordered_best[0]
+        #'''
+
+    def order_left(self, all_moves) :
+        LeftMostPiece = all_moves.sort(key =lambda move : move[0][1])
+        LeftMostMove = all_moves.sort(key =lambda move : move[1][1])
+        TopMostPiece = all_moves.sort(key =lambda move : move[0][0])
+        TopMostMove = all_moves.sort(key =lambda move : move[1][0])
+        return all_moves
 
     def print_times(self) :
         for key in self.times :

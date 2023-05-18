@@ -137,7 +137,7 @@ class NeuralNetField ():
     def calc_score(self, plr,id) :
         #print('run')
         score = 0
-        gen_not = self.curr_gen[:id] + self.curr_gen[id:]
+        gen_not = self.curr_gen[:id] + self.curr_gen[id+1:]
         self.p1.heurist.inst(plr)
         for _ in range(5) :
             t1 = t.time()
@@ -226,7 +226,7 @@ class Player ():
         self.k = net_dict['K']
     
     def find_value(self, board) :
-        '''
+        #'''
         v_board = self.vector_board(board)
         output_node = self.nodes[len(self.nodes)-1][0]
         #output_node = output_node[0]
@@ -244,7 +244,7 @@ class Player ():
         self.reset_nodes()
         #'''
 
-        return 0.1 #uniform(1,-1)
+        return val #uniform(1,-1)
     
     def reset_nodes(self) :
         for (id, layer) in self.nodes.items() :

@@ -1,7 +1,5 @@
 ## work on making board dict (possibly)
 
-from random import random
-
 class Checkers :
     def __init__(self, players) :
         self.players = players
@@ -145,7 +143,7 @@ class Checkers :
         plr_num = 1
         while self.winner == None :
             #if self.round % 1 == 0 :
-                #print(self.round)
+            #    print(self.round)
             all_moves = self.get_all_moves(plr_num)
             if all_moves == [] :
                 self.winner = (plr_num % 2) + 1

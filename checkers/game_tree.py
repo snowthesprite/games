@@ -133,9 +133,17 @@ class CheckersTree:
         ##!!
         t2 = t.time()
         self.times['find moves'].append(t2-t1)
-        ##!!
+        ##!! 
+        can_movess = self.order_left(can_move)
 
-        return can_move
+        return can_movess
+
+    def order_left(self, all_moves) :
+        LeftMostPiece = all_moves.sort(key =lambda move : move[0][1])
+        LeftMostMove = all_moves.sort(key =lambda move : move[1][1])
+        TopMostPiece = all_moves.sort(key =lambda move : move[0][0])
+        TopMostMove = all_moves.sort(key =lambda move : move[1][0])
+        return all_moves
 
  # ENDS FIND MOVES
 
@@ -170,10 +178,11 @@ class CheckersTree:
         ##!!
         t1 = t.time()
         ##!!
+
         cur_queue = [self.root]
         next_queue = [0]
         cur_plr = plr
-        layer = cur_lyr
+        layer = 0
         while layer < self.max_lyr and next_queue != [] :
             next_queue = []
             while cur_queue != [] :
@@ -206,8 +215,8 @@ class CheckersTree:
             child = self.nodes[kid]
             if kid != self.root and child.score != None :
                 child.reset()
-                next_queue.append(kid)
             child.parent.add(s_board)
+            next_queue.append(kid)
         
         ##!!
         t2 = t.time()
@@ -279,7 +288,7 @@ class CheckersTree:
                 index += 1
                 continue
 
-            if child_scores == [] :
+            if child_scores == [] or unassigned[index] in self.fake_leaf:
                 assi += self.find_score(node, max_plr, heuristic)
             elif node.plr == max_plr:
                 node.score = max(child_scores)

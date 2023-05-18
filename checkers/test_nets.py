@@ -40,8 +40,8 @@ print(t2-t1)
 
 nnf = NeuralNetField(node_layers, weights, lambda x: math.tanh(x))
 nnf.create_gen(pop)
-nnf.evolve(2,1)
-#nnf.calc_score(nnf.curr_gen[0],0)z
+nnf.evolve(1,1)
+#nnf.calc_score(nnf.curr_gen[0],0)
 
 b=nnf.times['games']
 print('games', sum(b)/len(b))
